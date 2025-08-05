@@ -1,0 +1,21 @@
+{% sw_extends '@Storefront/storefront/component/product/card/box-standard.html.twig' %}
+
+{% block component_product_box_price %}
+    {{ parent() }}
+
+    {% if product.extensions.rc_dual_price_active.enabled and product.calculatedPrice %}
+        <div class="rc-dual-price" style="{{ product.extensions.rc_dual_price_active.cssStyles }}">
+            {% if product.tax %}
+                {% if context.taxState == 'gross' %}
+                    {# Hauptpreis ist Brutto, zeige nur Netto #}
+                    {% set netPrice = product.calculatedPrice.unitPrice / (1 + (product.tax.taxRate / 100)) %}
+                    {{ "rc-dual-price.labelNet"|trans }}: {{ netPrice|currency(currencyIsoCode) }}
+                {% else %}
+                    {# Hauptpreis ist Netto, zeige nur Brutto #}
+                    {% set grossPrice = product.calculatedPrice.unitPrice * (1 + (product.tax.taxRate / 100)) %}
+                    {{ "rc-dual-price.labelGross"|trans }}: {{ grossPrice|currency(currencyIsoCode) }}
+                {% endif %}
+            {% endif %}
+        </div>
+    {% endif %}
+{% endblock %}
