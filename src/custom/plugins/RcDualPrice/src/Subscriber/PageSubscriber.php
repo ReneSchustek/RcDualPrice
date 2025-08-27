@@ -52,8 +52,17 @@ class PageSubscriber implements EventSubscriberInterface
         $isDualPrice = $this->isDualPriceActive($product);
         $this->logger->error('RcDualPrice: ProductPage isDualPriceActive = ' . ($isDualPrice ? 'true' : 'false'));
 
-        $product->addExtension('rc_dual_price_active', new ArrayStruct(['enabled' => $isDualPrice]));
-        $this->logger->error('RcDualPrice: Extension zu Product hinzugefügt');
+        // ✅ Extension nur hinzufügen wenn wirklich aktiv
+        if ($isDualPrice) {
+            $cssStyles = $this->configService->getCssStyles();
+            $product->addExtension('rc_dual_price_active', new ArrayStruct([
+                'enabled' => true,
+                'cssStyles' => $cssStyles
+            ]));
+            $this->logger->error('RcDualPrice: Extension zu Product hinzugefügt');
+        } else {
+            $this->logger->error('RcDualPrice: Extension NICHT hinzugefügt (deaktiviert)');
+        }
     }
 
     public function onListingPageLoaded($event): void
@@ -75,11 +84,15 @@ class PageSubscriber implements EventSubscriberInterface
             }
 
             $isDualPrice = $this->isDualPriceActive($product);
-            $cssStyles = $this->configService->getCssStyles();
-            $product->addExtension('rc_dual_price_active', new ArrayStruct([
-                'enabled' => $isDualPrice,
-                'cssStyles' => $cssStyles
-            ]));
+            
+            // ✅ Extension nur hinzufügen wenn aktiv
+            if ($isDualPrice) {
+                $cssStyles = $this->configService->getCssStyles();
+                $product->addExtension('rc_dual_price_active', new ArrayStruct([
+                    'enabled' => true,
+                    'cssStyles' => $cssStyles
+                ]));
+            }
         }
     }
 
@@ -294,12 +307,18 @@ class PageSubscriber implements EventSubscriberInterface
                             $this->ensureCategoriesLoaded($product);
 
                             $isDualPrice = $this->isDualPriceActive($product);
-                            $cssStyles = $this->configService->getCssStyles();
-                            $product->addExtension('rc_dual_price_active', new ArrayStruct([
-                                'enabled' => $isDualPrice,
-                                'cssStyles' => $cssStyles
-                            ]));
-                            $this->logger->error('RcDualPrice: Extension zu CMS-Product hinzugefügt: ' . ($isDualPrice ? 'true' : 'false'));
+                            
+                            // ✅ Extension nur hinzufügen wenn aktiv
+                            if ($isDualPrice) {
+                                $cssStyles = $this->configService->getCssStyles();
+                                $product->addExtension('rc_dual_price_active', new ArrayStruct([
+                                    'enabled' => true,
+                                    'cssStyles' => $cssStyles
+                                ]));
+                                $this->logger->error('RcDualPrice: Extension zu CMS-Product hinzugefügt: aktiv');
+                            } else {
+                                $this->logger->error('RcDualPrice: Extension NICHT zu CMS-Product hinzugefügt: inaktiv');
+                            }
                         }
                     }
 
@@ -311,16 +330,34 @@ class PageSubscriber implements EventSubscriberInterface
                             if ($product instanceof ProductEntity) {
                                 $this->ensureCategoriesLoaded($product);
                                 $isDualPrice = $this->isDualPriceActive($product);
-                                $cssStyles = $this->configService->getCssStyles();
-                                $product->addExtension('rc_dual_price_active', new ArrayStruct([
-                                    'enabled' => $isDualPrice,
-                                    'cssStyles' => $cssStyles
-                                ]));
+                                if ($isDualPrice) {
+                                    $cssStyles = $this->configService->getCssStyles();
+                                    $product->addExtension('rc_dual_price_active', new ArrayStruct([
+                                        'enabled' => true,
+                                        'cssStyles' => $cssStyles
+                                    ]));
+                                }
                             }
                         }
                     }
                 }
             }
+        }
+    }
+
+    /**
+     * Hilfsfunktion um Extension sicher hinzuzufügen
+     */
+    private function addDualPriceExtension(ProductEntity $product): void
+    {
+        $isDualPrice = $this->isDualPriceActive($product);
+        
+        if ($isDualPrice) {
+            $cssStyles = $this->configService->getCssStyles();
+            $product->addExtension('rc_dual_price_active', new ArrayStruct([
+                'enabled' => true,
+                'cssStyles' => $cssStyles
+            ]));
         }
     }
 }
