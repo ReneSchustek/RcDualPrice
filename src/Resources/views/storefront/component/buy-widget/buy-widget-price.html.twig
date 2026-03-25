@@ -1,0 +1,71 @@
+{% sw_extends '@Storefront/storefront/component/buy-widget/buy-widget-price.html.twig' %}
+
+{# Erweitere den normalen Preis um Dual Price Anzeige #}
+{% block buy_widget_price_content %}
+    {{ parent() }}
+
+    {% if product.extensions.rc_dual_price_active.enabled and product.calculatedPrice %}
+        <div class="rc-dual-price" style="{{ product.extensions.rc_dual_price_active.cssStyles }}">
+            {% if product.tax %}
+                {% if context.taxState == 'gross' %}
+                    {# Hauptpreis ist Brutto, zeige nur Netto #}
+                    {% set netPrice = product.calculatedPrice.unitPrice / (1 + (product.tax.taxRate / 100)) %}
+                    {{ "rc-dual-price.labelNet"|trans }}: {{ netPrice|currency(currencyIsoCode) }}
+                {% else %}
+                    {# Hauptpreis ist Netto, zeige nur Brutto #}
+                    {% set grossPrice = product.calculatedPrice.unitPrice * (1 + (product.tax.taxRate / 100)) %}
+                    {{ "rc-dual-price.labelGross"|trans }}: {{ grossPrice|currency(currencyIsoCode) }}
+                {% endif %}
+            {% endif %}
+        </div>
+    {% endif %}
+{% endblock %}
+
+{# Erweitere die Tabellenüberschrift um eine zusätzliche Spalte für gestaffelte Preise #}
+{% block buy_widget_price_block_table_head_inner %}
+    <tr class="product-block-prices-row">
+        <th scope="col" class="product-block-prices-cell">
+            {{ 'detail.dataColumnQuantity'|trans|sw_sanitize }}
+        </th>
+        <th scope="col" class="product-block-prices-cell">
+            {{ 'detail.dataColumnPrice'|trans|sw_sanitize }}
+        </th>
+        {% if product.extensions.rc_dual_price_active.enabled %}
+            <th scope="col" class="product-block-prices-cell">
+                {% if context.taxState == 'gross' %}
+                    {{ "rc-dual-price.labelNet"|trans }}
+                {% else %}
+                    {{ "rc-dual-price.labelGross"|trans }}
+                {% endif %}
+            </th>
+        {% endif %}
+        {% if product.calculatedPrice.referencePrice %}
+            <th scope="col" class="product-block-prices-cell">
+                {{ 'detail.dataColumnReferencePrice'|trans|sw_sanitize }}
+            </th>
+        {% endif %}
+    </tr>
+{% endblock %}
+
+{# Erweitere jede Tabellenzeile um eine zusätzliche Spalte für gestaffelte Preise #}
+{% block buy_widget_price_block_table_body_cell_price %}
+    <td class="product-block-prices-cell">
+        {% sw_include '@Storefront/storefront/component/product/block-price.html.twig' with {
+            price: price
+        } only %}
+    </td>
+
+    {% if product.extensions.rc_dual_price_active.enabled %}
+        <td class="product-block-prices-cell">
+            {% if context.taxState == 'gross' %}
+                {# Hauptpreis ist Brutto, zeige nur Netto #}
+                {% set netPrice = price.unitPrice / (1 + (product.tax.taxRate / 100)) %}
+                {{ netPrice|currency(currencyIsoCode) }}
+            {% else %}
+                {# Hauptpreis ist Netto, zeige nur Brutto #}
+                {% set grossPrice = price.unitPrice * (1 + (product.tax.taxRate / 100)) %}
+                {{ grossPrice|currency(currencyIsoCode) }}
+            {% endif %}
+        </td>
+    {% endif %}
+{% endblock %}

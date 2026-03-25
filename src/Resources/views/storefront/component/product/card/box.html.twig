@@ -1,0 +1,33 @@
+{#
+RcDualPrice Plugin
+-----------------
+Fügt die Anzeige von Netto-/Bruttopreisen in allen Produkt-Box-Templates ein.
+- Erweiterung des Blocks `component_product_box_price`, der in allen Box-Varianten genutzt wird
+- Kompatibel mit Standard, Minimal, Minimalistic, Image, Wishlist
+- Nutzt Plugin-Erweiterung `rc_dual_price_active` für Aktivierung und CSS-Styling
+#}
+
+{% sw_extends '@Storefront/storefront/component/product/card/box.html.twig' %}
+
+{# Erweiterung des Preises innerhalb der Produkt-Box #}
+{% block component_product_box_price %}
+    {# Original-Block rendern (Standardpreis) #}
+    {{ parent() }}
+
+    {# Prüfen, ob RcDualPrice aktiviert ist und Preisberechnung vorhanden #}
+    {% if product.extensions.rc_dual_price_active.enabled and product.calculatedPrice %}
+        <div class="rc-dual-price" style="{{ product.extensions.rc_dual_price_active.cssStyles }}">
+            {% if product.tax %}
+                {% if context.taxState == 'gross' %}
+                    {# Hauptpreis ist Brutto, wir zeigen Netto zusätzlich an #}
+                    {% set netPrice = product.calculatedPrice.unitPrice / (1 + (product.tax.taxRate / 100)) %}
+                    {{ "rc-dual-price.labelNet"|trans }}: {{ netPrice|currency(currencyIsoCode) }}
+                {% else %}
+                    {# Hauptpreis ist Netto, wir zeigen Brutto zusätzlich an #}
+                    {% set grossPrice = product.calculatedPrice.unitPrice * (1 + (product.tax.taxRate / 100)) %}
+                    {{ "rc-dual-price.labelGross"|trans }}: {{ grossPrice|currency(currencyIsoCode) }}
+                {% endif %}
+            {% endif %}
+        </div>
+    {% endif %}
+{% endblock %}
