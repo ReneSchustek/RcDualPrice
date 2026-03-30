@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/shopware/trunk/src/Core/System/SystemConfig/Schema/config.xsd">
+
+    <card>
+        <title>Dual Price Configuration</title>
+        <title lang="de-DE">Zweitpreis Konfiguration</title>
+
+        <input-field type="bool">
+            <name>active</name>
+            <label>Plugin active</label>
+            <label lang="de-DE">Plugin aktiv</label>
+            <helpText>Enable or disable the dual price display globally</helpText>
+            <helpText lang="de-DE">Zweitpreis-Anzeige global aktivieren oder deaktivieren</helpText>
+            <defaultValue>true</defaultValue>
+        </input-field>
+
+        <input-field type="colorpicker">
+            <name>textColor</name>
+            <label>Text Color</label>
+            <label lang="de-DE">Textfarbe</label>
+            <helpText>Color of the second price text</helpText>
+            <helpText lang="de-DE">Farbe des Zweitpreis-Texts</helpText>
+            <defaultValue>#6c757d</defaultValue>
+        </input-field>
+
+        <input-field type="single-select">
+            <name>fontSize</name>
+            <label>Font Size</label>
+            <label lang="de-DE">Schriftgröße</label>
+            <helpText>Font size of the second price</helpText>
+            <helpText lang="de-DE">Schriftgröße des Zweitpreises</helpText>
+            <options>
+                <option>
+                    <id>small</id>
+                    <name>Small</name>
+                    <name lang="de-DE">Klein</name>
+                </option>
+                <option>
+                    <id>normal</id>
+                    <name>Normal</name>
+                    <name lang="de-DE">Normal</name>
+                </option>
+                <option>
+                    <id>large</id>
+                    <name>Large</name>
+                    <name lang="de-DE">Groß</name>
+                </option>
+            </options>
+            <defaultValue>small</defaultValue>
+        </input-field>
+
+        <input-field type="single-select">
+            <name>fontWeight</name>
+            <label>Font Weight</label>
+            <label lang="de-DE">Schriftgewicht</label>
+            <helpText>Font weight of the second price</helpText>
+            <helpText lang="de-DE">Schriftgewicht des Zweitpreises</helpText>
+            <options>
+                <option>
+                    <id>normal</id>
+                    <name>Normal</name>
+                    <name lang="de-DE">Normal</name>
+                </option>
+                <option>
+                    <id>bold</id>
+                    <name>Bold</name>
+                    <name lang="de-DE">Fett</name>
+                </option>
+            </options>
+            <defaultValue>normal</defaultValue>
+        </input-field>
+
+        <input-field type="int">
+            <name>marginTop</name>
+            <label>Top Margin (px)</label>
+            <label lang="de-DE">Oberer Abstand (px)</label>
+            <helpText>Margin above the second price in pixels</helpText>
+            <helpText lang="de-DE">Abstand über dem Zweitpreis in Pixeln</helpText>
+            <defaultValue>4</defaultValue>
+        </input-field>
+    </card>
+</config>
