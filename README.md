@@ -1,6 +1,6 @@
 # RcDualPrice
 
-Shopware 6 Plugin — zeigt auf Produktseiten und in Listings einen zweiten Preis an.
+Shopware 6 Plugin — zeigt auf Produktseiten, in Listings und auf CMS-Seiten einen zweiten Preis an.
 
 ---
 
