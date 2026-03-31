@@ -6,7 +6,7 @@
 
     {% if product.extensions.rc_dual_price_active.enabled and product.calculatedPrice %}
         <div class="rc-dual-price" style="{{ product.extensions.rc_dual_price_active.cssStyles }}">
-            {% if product.tax %}
+            {% if product.tax and product.tax.taxRate is not null %}
                 {% if context.taxState == 'gross' %}
                     {# Hauptpreis ist Brutto, zeige nur Netto #}
                     {% set netPrice = product.calculatedPrice.unitPrice / (1 + (product.tax.taxRate / 100)) %}
