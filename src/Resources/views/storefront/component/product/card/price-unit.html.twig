@@ -4,14 +4,16 @@
 {% block component_product_box_price %}
     {{ parent() }}
 
-    {% if product.extensions.rc_dual_price_active.enabled %}
+    {% set dualTaxRate = product.tax ? product.tax.taxRate : null %}
+
+    {% if product.extensions.rc_dual_price_active.enabled and dualTaxRate is not null and dualTaxRate != 0 %}
         <div class="rc-dual-price" style="{{ product.extensions.rc_dual_price_active.cssStyles }}">
             {# UVP-Zweitpreis (durchgestrichen) wenn Listenpreis vorhanden #}
             {% if isListPrice is defined and isListPrice and not (displayFrom is defined and displayFrom) and not (displayFromVariants is defined and displayFromVariants) %}
                 <s class="rc-dual-price-list-price">
                     {% sw_include '@RcDualPrice/storefront/component/rc-dual-price-label.html.twig' with {
                         unitPrice: price.listPrice.price,
-                        taxRate: product.tax ? product.tax.taxRate : null,
+                        taxRate: dualTaxRate,
                         taxState: context.taxState,
                         currencyIsoCode: currencyIsoCode
                     } only %}
@@ -26,7 +28,7 @@
             {# Zweitpreis für den aktuellen Verkaufspreis #}
             {% sw_include '@RcDualPrice/storefront/component/rc-dual-price-label.html.twig' with {
                 unitPrice: real.unitPrice,
-                taxRate: product.tax ? product.tax.taxRate : null,
+                taxRate: dualTaxRate,
                 taxState: context.taxState,
                 currencyIsoCode: currencyIsoCode
             } only %}
