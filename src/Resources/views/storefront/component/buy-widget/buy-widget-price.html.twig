@@ -38,7 +38,7 @@
         <th scope="col" class="product-block-prices-cell">
             {{ 'detail.dataColumnPrice'|trans|sw_sanitize }}
         </th>
-        {% if product.extensions.rc_dual_price_active.enabled %}
+        {% if product.extensions.rc_dual_price_active.enabled and product.tax and product.tax.taxRate != 0 %}
             <th scope="col" class="product-block-prices-cell">
                 {% if context.taxState == 'gross' %}
                     {{ "rc-dual-price.labelNet"|trans }}
@@ -63,13 +63,14 @@
         } only %}
     </td>
 
-    {% if product.extensions.rc_dual_price_active.enabled %}
+    {% if product.extensions.rc_dual_price_active.enabled and product.tax and product.tax.taxRate != 0 %}
         <td class="product-block-prices-cell">
             {% sw_include '@RcDualPrice/storefront/component/rc-dual-price-label.html.twig' with {
                 unitPrice: price.unitPrice,
-                taxRate: product.tax ? product.tax.taxRate : null,
+                taxRate: product.tax.taxRate,
                 taxState: context.taxState,
-                currencyIsoCode: currencyIsoCode
+                currencyIsoCode: currencyIsoCode,
+                hideLabel: true
             } only %}
         </td>
     {% endif %}
