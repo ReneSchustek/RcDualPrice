@@ -6,13 +6,14 @@
         taxRate         – float|null  – Steuersatz in Prozent (z.B. 19), null oder 0 unterdrückt die Anzeige
         taxState        – string      – 'gross' oder 'net'
         currencyIsoCode – string|null – ISO-Code der Währung (optional, für currency-Filter)
+        hideLabel       – bool        – Wenn true, wird nur der Betrag ohne "Netto:"/"Brutto:" ausgegeben
 #}
 {% if taxRate is not null and taxRate != 0 %}
     {% if taxState == 'gross' %}
         {% set dualPrice = unitPrice / (1 + (taxRate / 100)) %}
-        {{ "rc-dual-price.labelNet"|trans }}: {{ dualPrice|currency(currencyIsoCode|default) }}
+        {% if not (hideLabel|default(false)) %}{{ "rc-dual-price.labelNet"|trans }}: {% endif %}{{ dualPrice|currency(currencyIsoCode|default) }}
     {% else %}
         {% set dualPrice = unitPrice * (1 + (taxRate / 100)) %}
-        {{ "rc-dual-price.labelGross"|trans }}: {{ dualPrice|currency(currencyIsoCode|default) }}
+        {% if not (hideLabel|default(false)) %}{{ "rc-dual-price.labelGross"|trans }}: {% endif %}{{ dualPrice|currency(currencyIsoCode|default) }}
     {% endif %}
 {% endif %}
