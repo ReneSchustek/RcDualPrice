@@ -1,0 +1,37 @@
+{% sw_extends '@Storefront/storefront/component/product/card/price-unit.html.twig' %}
+
+{# Zweitpreis in allen Produkt-Box-Varianten (Standard, Image, Minimal, Wishlist) #}
+{% block component_product_box_price %}
+    {{ parent() }}
+
+    {% set dualTaxRate = product.tax ? product.tax.taxRate : null %}
+
+    {% if product.extensions.rc_dual_price_active.enabled and dualTaxRate is not null and dualTaxRate != 0 %}
+        <div class="rc-dual-price" style="{{ product.extensions.rc_dual_price_active.cssStyles }}">
+            {# UVP-Zweitpreis (durchgestrichen) wenn Listenpreis vorhanden #}
+            {% if isListPrice is defined and isListPrice and not (displayFrom is defined and displayFrom) and not (displayFromVariants is defined and displayFromVariants) %}
+                <s class="rc-dual-price-list-price">
+                    {% sw_include '@RcDualPrice/storefront/component/rc-dual-price-label.html.twig' with {
+                        unitPrice: price.listPrice.price,
+                        taxRate: dualTaxRate,
+                        taxState: context.taxState,
+                        currencyIsoCode: currencyIsoCode
+                    } only %}
+                </s>
+            {% endif %}
+
+            {# "Ab"-Prefix bei Staffel-/Variantenpreisen #}
+            {% if (displayFrom is defined and displayFrom) or (displayParent is defined and displayParent and hasDifferentPrice is defined and hasDifferentPrice and hasRange is defined and hasRange and totalVariants is defined and totalVariants|length > 1) %}
+                {{ "rc-dual-price.labelFrom"|trans }}
+            {% endif %}
+
+            {# Zweitpreis für den aktuellen Verkaufspreis #}
+            {% sw_include '@RcDualPrice/storefront/component/rc-dual-price-label.html.twig' with {
+                unitPrice: real.unitPrice,
+                taxRate: dualTaxRate,
+                taxState: context.taxState,
+                currencyIsoCode: currencyIsoCode
+            } only %}
+        </div>
+    {% endif %}
+{% endblock %}

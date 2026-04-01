@@ -39,12 +39,16 @@ final class ConfigService
 
     public function getFontWeight(): string
     {
-        return (string) $this->get('.fontWeight', 'normal');
+        $weight = (string) $this->get('.fontWeight', 'normal');
+
+        // XSS-Schutz: Nur erlaubte Werte, da fontWeight ins style-Attribut fliesst
+        return \in_array($weight, ['normal', 'bold'], true) ? $weight : 'normal';
     }
 
     public function getMarginTop(): int
     {
-        return (int) $this->get('.marginTop', 4);
+        // Begrenzt auf 0-100px, da der Wert ins style-Attribut fliesst
+        return min(max((int) $this->get('.marginTop', 4), 0), 100);
     }
 
     public function getCssStyles(): string

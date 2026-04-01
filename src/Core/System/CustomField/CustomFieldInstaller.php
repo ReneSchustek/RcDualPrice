@@ -20,8 +20,10 @@ final class CustomFieldInstaller
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', self::SET_NAME));
-        if ($this->customFieldSetRepository->search($criteria, $context)->first() !== null) {
-            return; // Bereits installiert
+        $existing = $this->customFieldSetRepository->search($criteria, $context)->first();
+
+        if ($existing !== null) {
+            return;
         }
 
         $this->customFieldSetRepository->upsert([
