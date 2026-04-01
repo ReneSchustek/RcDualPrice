@@ -1,23 +1,23 @@
 # RcDualPrice
 
-Shopware 6 Plugin — zeigt neben dem regulären Preis den Zweitpreis (Netto bzw. Brutto) an.
+Shopware 6 Plugin — zeigt neben dem Hauptpreis automatisch den Netto- bzw. Bruttopreis an.
 
 ---
 
 ## Was das Plugin macht
 
-Shopware zeigt standardmäßig entweder Brutto- oder Nettopreise. Dieses Plugin ergänzt automatisch den jeweils fehlenden Preis — bei Brutto-Shops den Nettopreis und umgekehrt.
+Shopware zeigt standardmäßig entweder Brutto- oder Nettopreise. Dieses Plugin ergänzt automatisch den jeweils fehlenden Gegenpreis: In Brutto-Shops wird der Nettopreis angezeigt, in Netto-Shops der Bruttopreis.
 
-Die Aktivierung erfolgt pro Kategorie über ein Custom Field. Alle Produkte in einer aktivierten Kategorie erhalten den Zweitpreis.
+Die Berechnung erfolgt anhand des hinterlegten Steuersatzes. Die Aktivierung wird pro Kategorie über ein Custom Field gesteuert — alle Produkte in einer aktivierten Kategorie erhalten die Netto-/Brutto-Anzeige.
 
 ---
 
-## Unterstützte Kontexte
+## Wo wird der Gegenpreis angezeigt?
 
 | Kontext | Beschreibung |
 |---------|-------------|
-| Produktdetailseite | Einzelpreis + UVP-Zweitpreis |
-| Staffelpreise | Zweitpreis-Spalte in der Staffelpreis-Tabelle |
+| Produktdetailseite | Netto/Brutto unter dem Hauptpreis, bei UVP auch für den Streichpreis |
+| Staffelpreise | Zusätzliche Netto-/Brutto-Spalte in der Staffelpreis-Tabelle |
 | Listing-Boxen | Alle Varianten (Standard, Image, Minimal, Wishlist) |
 | CMS-Seiten | Produkt-Slider, -Boxen, -Listings, Cross-Selling |
 | Suchergebnisse | Über Listing-Boxen |
@@ -27,9 +27,9 @@ Die Aktivierung erfolgt pro Kategorie über ein Custom Field. Alle Produkte in e
 
 ### Sonderfälle
 
-- **UVP/Listenpreis:** Durchgestrichener Zweitpreis neben dem aktuellen Zweitpreis
-- **"Ab"-Preise:** Prefix bei Varianten mit unterschiedlichen Preisen
-- **0% Steuersatz:** Kein Zweitpreis (identisch mit Erstpreis)
+- **UVP/Listenpreis:** Durchgestrichener Netto-/Brutto-Streichpreis neben dem aktuellen Gegenpreis
+- **"Ab"-Preise:** "Ab"-Prefix bei Varianten mit unterschiedlichen Preisen
+- **0% Steuersatz:** Keine Anzeige, da Netto und Brutto identisch sind
 
 ---
 
@@ -59,10 +59,10 @@ Im Admin unter **Einstellungen → Plugins → RcDualPrice**:
 | Feld | Beschreibung |
 |------|-------------|
 | Plugin aktiv | Schaltet das gesamte Plugin an/aus |
-| Textfarbe | Farbe des Zweitpreis-Texts (Colorpicker) |
+| Textfarbe | Farbe des Netto-/Brutto-Texts (Colorpicker) |
 | Schriftgröße | Klein / Normal / Groß |
 | Schriftgewicht | Normal / Fett |
-| Oberer Abstand | Abstand über dem Zweitpreis in Pixeln |
+| Oberer Abstand | Abstand über dem Gegenpreis in Pixeln |
 
 ### Aktivierung per Kategorie
 
@@ -70,9 +70,9 @@ Im Admin unter **Kategorien → [Kategorie] → Individuelle Felder**:
 
 | Feld | Beschreibung |
 |------|-------------|
-| Dual Price aktiv | Aktiviert die zweite Preisanzeige für alle Produkte in dieser Kategorie |
+| Dual Price aktiv | Aktiviert die Netto-/Brutto-Anzeige für alle Produkte in dieser Kategorie |
 
-**Hinweis:** Im Warenkorb und Checkout wird der Zweitpreis bei allen Produkten angezeigt (unabhängig von der Kategorie), da dort keine Kategorie-Zuordnung verfügbar ist.
+**Hinweis:** Im Warenkorb und Checkout wird der Gegenpreis bei allen Produkten angezeigt (unabhängig von der Kategorie), da dort keine Kategorie-Zuordnung verfügbar ist.
 
 ---
 
