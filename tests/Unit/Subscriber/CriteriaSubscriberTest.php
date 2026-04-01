@@ -7,6 +7,7 @@ namespace Ruhrcoder\RcDualPrice\Tests\Unit\Subscriber;
 use PHPUnit\Framework\TestCase;
 use Ruhrcoder\RcDualPrice\Service\ConfigService;
 use Ruhrcoder\RcDualPrice\Subscriber\CriteriaSubscriber;
+use Shopware\Core\Content\Product\Events\ProductListingCriteriaEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 
 final class CriteriaSubscriberTest extends TestCase
@@ -26,14 +27,11 @@ final class CriteriaSubscriberTest extends TestCase
 
         $subscriber = new CriteriaSubscriber($configService);
 
-        // Event-Mock mit Criteria – addAssociation darf nicht aufgerufen werden
         $criteria = $this->createMock(Criteria::class);
         $criteria->expects($this->never())->method('addAssociation');
 
-        $event = new class($criteria) {
-            public function __construct(private readonly Criteria $criteria) {}
-            public function getCriteria(): Criteria { return $this->criteria; }
-        };
+        $event = $this->createMock(ProductListingCriteriaEvent::class);
+        $event->method('getCriteria')->willReturn($criteria);
 
         $subscriber->onCriteria($event);
     }
@@ -48,10 +46,8 @@ final class CriteriaSubscriberTest extends TestCase
         $criteria = $this->createMock(Criteria::class);
         $criteria->expects($this->once())->method('addAssociation')->with('categories');
 
-        $event = new class($criteria) {
-            public function __construct(private readonly Criteria $criteria) {}
-            public function getCriteria(): Criteria { return $this->criteria; }
-        };
+        $event = $this->createMock(ProductListingCriteriaEvent::class);
+        $event->method('getCriteria')->willReturn($criteria);
 
         $subscriber->onCriteria($event);
     }

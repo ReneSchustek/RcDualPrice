@@ -1,6 +1,7 @@
 {
   "rc-dual-price": {
     "labelNet": "Netto",
-    "labelGross": "Brutto"
+    "labelGross": "Brutto",
+    "labelFrom": "ab"
   }
 }
