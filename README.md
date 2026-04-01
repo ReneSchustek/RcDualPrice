@@ -1,16 +1,35 @@
 # RcDualPrice
 
-Shopware 6 Plugin — zeigt auf Produktseiten, in Listings und auf CMS-Seiten einen zweiten Preis an.
+Shopware 6 Plugin — zeigt neben dem regulären Preis den Zweitpreis (Netto bzw. Brutto) an.
 
 ---
 
 ## Was das Plugin macht
 
-Manche Shops zeigen neben dem regulären Preis einen weiteren Preis an — z. B. einen alten Preis, einen Staffelpreis oder einen brutto/netto Vergleich. Shopware-Standard unterstützt dies nicht nativ für alle Darstellungsformen.
+Shopware zeigt standardmäßig entweder Brutto- oder Nettopreise. Dieses Plugin ergänzt automatisch den jeweils fehlenden Preis — bei Brutto-Shops den Nettopreis und umgekehrt.
 
-Dieses Plugin liest pro Kategorie ein Custom Field (`rc_dual_price_active`) und reichert alle Produkte in dieser Kategorie mit einer `rc_dual_price_active`-Extension an. Das Twig-Template kann diese Extension auswerten und den zweiten Preis darstellen. Die Aktivierung erfolgt also per Kategorie, nicht per einzelnem Produkt.
+Die Aktivierung erfolgt pro Kategorie über ein Custom Field. Alle Produkte in einer aktivierten Kategorie erhalten den Zweitpreis.
 
-Der zweite Preis und sein CSS-Styling werden über das Plugin global konfiguriert.
+---
+
+## Unterstützte Kontexte
+
+| Kontext | Beschreibung |
+|---------|-------------|
+| Produktdetailseite | Einzelpreis + UVP-Zweitpreis |
+| Staffelpreise | Zweitpreis-Spalte in der Staffelpreis-Tabelle |
+| Listing-Boxen | Alle Varianten (Standard, Image, Minimal, Wishlist) |
+| CMS-Seiten | Produkt-Slider, -Boxen, -Listings, Cross-Selling |
+| Suchergebnisse | Über Listing-Boxen |
+| Warenkorb | Einzel- und Gesamtpreis im Off-Canvas-Cart und auf der Warenkorb-Seite |
+| Checkout | Einzel- und Gesamtpreis auf der Bestätigungsseite |
+| Bestellhistorie | Einzel- und Gesamtpreis in der Bestellübersicht |
+
+### Sonderfälle
+
+- **UVP/Listenpreis:** Durchgestrichener Zweitpreis neben dem aktuellen Zweitpreis
+- **"Ab"-Preise:** Prefix bei Varianten mit unterschiedlichen Preisen
+- **0% Steuersatz:** Kein Zweitpreis (identisch mit Erstpreis)
 
 ---
 
@@ -39,8 +58,11 @@ Im Admin unter **Einstellungen → Plugins → RcDualPrice**:
 
 | Feld | Beschreibung |
 |------|-------------|
-| Dual Price aktivieren | Schaltet das gesamte Plugin an/aus |
-| CSS-Styles | Optionale CSS-Anpassungen für die Preisdarstellung |
+| Plugin aktiv | Schaltet das gesamte Plugin an/aus |
+| Textfarbe | Farbe des Zweitpreis-Texts (Colorpicker) |
+| Schriftgröße | Klein / Normal / Groß |
+| Schriftgewicht | Normal / Fett |
+| Oberer Abstand | Abstand über dem Zweitpreis in Pixeln |
 
 ### Aktivierung per Kategorie
 
@@ -49,6 +71,8 @@ Im Admin unter **Kategorien → [Kategorie] → Individuelle Felder**:
 | Feld | Beschreibung |
 |------|-------------|
 | Dual Price aktiv | Aktiviert die zweite Preisanzeige für alle Produkte in dieser Kategorie |
+
+**Hinweis:** Im Warenkorb und Checkout wird der Zweitpreis bei allen Produkten angezeigt (unabhängig von der Kategorie), da dort keine Kategorie-Zuordnung verfügbar ist.
 
 ---
 

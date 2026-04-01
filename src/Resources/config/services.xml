@@ -14,6 +14,11 @@
 
         <service id="Ruhrcoder\RcDualPrice\Service\CategoryDualPriceHelper"/>
 
+        <service id="Ruhrcoder\RcDualPrice\Twig\DualPriceTwigExtension">
+            <tag name="twig.extension"/>
+            <argument type="service" id="Ruhrcoder\RcDualPrice\Service\ConfigService"/>
+        </service>
+
         <service id="Ruhrcoder\RcDualPrice\Subscriber\CriteriaSubscriber">
             <tag name="kernel.event_subscriber"/>
             <argument type="service" id="Ruhrcoder\RcDualPrice\Service\ConfigService"/>

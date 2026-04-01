@@ -1,27 +1,35 @@
 {% sw_extends '@Storefront/storefront/component/buy-widget/buy-widget-price.html.twig' %}
 
-{# Erweitere den normalen Preis um Dual Price Anzeige #}
+{# Zweitpreis auf der Produktdetailseite (Einzelpreis + UVP) #}
 {% block buy_widget_price_content %}
     {{ parent() }}
 
     {% if product.extensions.rc_dual_price_active.enabled and product.calculatedPrice %}
         <div class="rc-dual-price" style="{{ product.extensions.rc_dual_price_active.cssStyles }}">
-            {% if product.tax and product.tax.taxRate is not null %}
-                {% if context.taxState == 'gross' %}
-                    {# Hauptpreis ist Brutto, zeige nur Netto #}
-                    {% set netPrice = product.calculatedPrice.unitPrice / (1 + (product.tax.taxRate / 100)) %}
-                    {{ "rc-dual-price.labelNet"|trans }}: {{ netPrice|currency(currencyIsoCode) }}
-                {% else %}
-                    {# Hauptpreis ist Netto, zeige nur Brutto #}
-                    {% set grossPrice = product.calculatedPrice.unitPrice * (1 + (product.tax.taxRate / 100)) %}
-                    {{ "rc-dual-price.labelGross"|trans }}: {{ grossPrice|currency(currencyIsoCode) }}
-                {% endif %}
+            {# UVP-Zweitpreis (durchgestrichen) wenn Listenpreis vorhanden #}
+            {% if isListPrice is defined and isListPrice %}
+                <s class="rc-dual-price-list-price">
+                    {% sw_include '@RcDualPrice/storefront/component/rc-dual-price-label.html.twig' with {
+                        unitPrice: listPrice.price,
+                        taxRate: product.tax ? product.tax.taxRate : null,
+                        taxState: context.taxState,
+                        currencyIsoCode: currencyIsoCode
+                    } only %}
+                </s>
             {% endif %}
+
+            {# Zweitpreis für den aktuellen Verkaufspreis #}
+            {% sw_include '@RcDualPrice/storefront/component/rc-dual-price-label.html.twig' with {
+                unitPrice: price.unitPrice,
+                taxRate: product.tax ? product.tax.taxRate : null,
+                taxState: context.taxState,
+                currencyIsoCode: currencyIsoCode
+            } only %}
         </div>
     {% endif %}
 {% endblock %}
 
-{# Erweitere die Tabellenüberschrift um eine zusätzliche Spalte für gestaffelte Preise #}
+{# Staffelpreise: Tabellenüberschrift um Zweitpreis-Spalte erweitern #}
 {% block buy_widget_price_block_table_head_inner %}
     <tr class="product-block-prices-row">
         <th scope="col" class="product-block-prices-cell">
@@ -47,7 +55,7 @@
     </tr>
 {% endblock %}
 
-{# Erweitere jede Tabellenzeile um eine zusätzliche Spalte für gestaffelte Preise #}
+{# Staffelpreise: Jede Tabellenzeile um Zweitpreis-Spalte erweitern #}
 {% block buy_widget_price_block_table_body_cell_price %}
     <td class="product-block-prices-cell">
         {% sw_include '@Storefront/storefront/component/product/block-price.html.twig' with {
@@ -57,15 +65,12 @@
 
     {% if product.extensions.rc_dual_price_active.enabled %}
         <td class="product-block-prices-cell">
-            {% if context.taxState == 'gross' %}
-                {# Hauptpreis ist Brutto, zeige nur Netto #}
-                {% set netPrice = price.unitPrice / (1 + (product.tax.taxRate / 100)) %}
-                {{ netPrice|currency(currencyIsoCode) }}
-            {% else %}
-                {# Hauptpreis ist Netto, zeige nur Brutto #}
-                {% set grossPrice = price.unitPrice * (1 + (product.tax.taxRate / 100)) %}
-                {{ grossPrice|currency(currencyIsoCode) }}
-            {% endif %}
+            {% sw_include '@RcDualPrice/storefront/component/rc-dual-price-label.html.twig' with {
+                unitPrice: price.unitPrice,
+                taxRate: product.tax ? product.tax.taxRate : null,
+                taxState: context.taxState,
+                currencyIsoCode: currencyIsoCode
+            } only %}
         </td>
     {% endif %}
 {% endblock %}

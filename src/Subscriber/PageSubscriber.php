@@ -21,17 +21,18 @@ final class PageSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            // Produktdetailseite
             ProductPageLoadedEvent::class    => 'onProductPageLoaded',
-            // Alle Listing-Kontexte (Navigation, Suche, AJAX-Sort/Filter)
             ProductListingResultEvent::class => 'onListingResult',
-            // CMS-Seiten mit Produktelementen
             CmsPageLoadedEvent::class        => 'onCmsPageLoaded',
         ];
     }
 
     public function onProductPageLoaded(ProductPageLoadedEvent $event): void
     {
+        if (!$this->configService->isDualPriceActive()) {
+            return;
+        }
+
         $product = $event->getPage()->getProduct();
 
         if (!$product instanceof ProductEntity) {
@@ -56,6 +57,10 @@ final class PageSubscriber implements EventSubscriberInterface
 
     public function onCmsPageLoaded(CmsPageLoadedEvent $event): void
     {
+        if (!$this->configService->isDualPriceActive()) {
+            return;
+        }
+
         $result = $event->getResult();
         if (!$result) {
             return;
@@ -100,11 +105,6 @@ final class PageSubscriber implements EventSubscriberInterface
 
     private function enrichProduct(ProductEntity $product): void
     {
-        if (!$this->configService->isDualPriceActive()) {
-            $product->addExtension('rc_dual_price_active', new ArrayStruct(['enabled' => false]));
-            return;
-        }
-
         $categories = $product->getCategories();
         $enabled = false;
 

@@ -1,0 +1,43 @@
+{% sw_extends '@Storefront/storefront/component/line-item/type/product.html.twig' %}
+
+{# Zweitpreis beim Einzelpreis im Warenkorb, Off-Canvas-Cart, Checkout und Bestellhistorie #}
+{% block component_line_item_type_product_col_unit_price %}
+    {{ parent() }}
+
+    {% if rc_dual_price_active() and lineItem.price %}
+        {% set taxRate = lineItem.price.calculatedTaxes.first ? lineItem.price.calculatedTaxes.first.taxRate : null %}
+        {% if taxRate is not null and taxRate != 0 %}
+            <div class="line-item-unit-price">
+                <div class="rc-dual-price" style="{{ rc_dual_price_css_styles() }}">
+                    {% sw_include '@RcDualPrice/storefront/component/rc-dual-price-label.html.twig' with {
+                        unitPrice: lineItem.price.unitPrice,
+                        taxRate: taxRate,
+                        taxState: context.taxState,
+                        currencyIsoCode: displayMode == 'order' and order is defined ? order.currency.isoCode : null
+                    } only %}
+                </div>
+            </div>
+        {% endif %}
+    {% endif %}
+{% endblock %}
+
+{# Zweitpreis beim Gesamtpreis im Warenkorb, Off-Canvas-Cart, Checkout und Bestellhistorie #}
+{% block component_line_item_type_product_col_total_price %}
+    {{ parent() }}
+
+    {% if rc_dual_price_active() and lineItem.price and showSubtotal is defined and showSubtotal %}
+        {% set taxRate = lineItem.price.calculatedTaxes.first ? lineItem.price.calculatedTaxes.first.taxRate : null %}
+        {% if taxRate is not null and taxRate != 0 %}
+            <div class="line-item-total-price">
+                <div class="rc-dual-price" style="{{ rc_dual_price_css_styles() }}">
+                    {% sw_include '@RcDualPrice/storefront/component/rc-dual-price-label.html.twig' with {
+                        unitPrice: lineItem.price.totalPrice,
+                        taxRate: taxRate,
+                        taxState: context.taxState,
+                        currencyIsoCode: displayMode == 'order' and order is defined ? order.currency.isoCode : null
+                    } only %}
+                </div>
+            </div>
+        {% endif %}
+    {% endif %}
+{% endblock %}
