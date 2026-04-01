@@ -18,6 +18,14 @@ final class CustomFieldInstaller
 
     public function install(Context $context): void
     {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('name', self::SET_NAME));
+        $existing = $this->customFieldSetRepository->search($criteria, $context)->first();
+
+        if ($existing !== null) {
+            return;
+        }
+
         $this->customFieldSetRepository->upsert([
             [
                 'name' => self::SET_NAME,
