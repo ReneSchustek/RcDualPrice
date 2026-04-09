@@ -11,7 +11,8 @@
     }
   ],
   "require": {
-    "shopware/core": "~6.7.0 || ~6.8.0"
+    "shopware/core": "~6.7.0 || ~6.8.0",
+    "shopware/storefront": "~6.7.0 || ~6.8.0"
   },
   "require-dev": {
     "phpunit/phpunit": "^10.5 || ^11.0",
@@ -44,6 +45,13 @@
     "label": {
       "de-DE": "Zweitpreis (Netto/Brutto)",
       "en-GB": "Dual Price (Net/Gross)"
+    }
+  },
+  "config": {
+    "allow-plugins": {
+      "symfony/runtime": false,
+      "symfony/flex": false,
+      "php-http/discovery": false
     }
   }
 }

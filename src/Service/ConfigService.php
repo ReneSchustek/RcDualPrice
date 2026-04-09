@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Ruhrcoder\RcDualPrice\Service;
 
@@ -12,8 +14,9 @@ final class ConfigService
     private array $cache = [];
 
     public function __construct(
-        private readonly SystemConfigService $systemConfigService
-    ) {}
+        private readonly SystemConfigService $systemConfigService,
+    ) {
+    }
 
     public function isDualPriceActive(): bool
     {

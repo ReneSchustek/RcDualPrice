@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Ruhrcoder\RcDualPrice\Subscriber;
 
@@ -13,7 +15,8 @@ final class CriteriaSubscriber implements EventSubscriberInterface
 {
     public function __construct(
         private readonly ConfigService $configService,
-    ) {}
+    ) {
+    }
 
     public static function getSubscribedEvents(): array
     {
@@ -27,8 +30,7 @@ final class CriteriaSubscriber implements EventSubscriberInterface
 
     public function onCriteria(
         ProductListingCriteriaEvent|ProductSearchCriteriaEvent|ProductSuggestCriteriaEvent|ProductPageCriteriaEvent $event,
-    ): void
-    {
+    ): void {
         // Kategorien-Association nur laden wenn Plugin überhaupt aktiv ist
         if (!$this->configService->isDualPriceActive()) {
             return;

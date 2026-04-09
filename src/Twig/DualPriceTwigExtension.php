@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Ruhrcoder\RcDualPrice\Twig;
 
@@ -10,7 +12,8 @@ final class DualPriceTwigExtension extends AbstractExtension
 {
     public function __construct(
         private readonly ConfigService $configService,
-    ) {}
+    ) {
+    }
 
     /** @return TwigFunction[] */
     public function getFunctions(): array

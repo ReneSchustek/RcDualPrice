@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Ruhrcoder\RcDualPrice\Subscriber;
 
@@ -16,7 +18,8 @@ final class PageSubscriber implements EventSubscriberInterface
     public function __construct(
         private readonly ConfigService $configService,
         private readonly CategoryDualPriceHelper $categoryHelper,
-    ) {}
+    ) {
+    }
 
     public static function getSubscribedEvents(): array
     {
@@ -33,13 +36,7 @@ final class PageSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $product = $event->getPage()->getProduct();
-
-        if (!$product instanceof ProductEntity) {
-            return;
-        }
-
-        $this->enrichProduct($product);
+        $this->enrichProduct($event->getPage()->getProduct());
     }
 
     public function onListingResult(ProductListingResultEvent $event): void
@@ -49,9 +46,7 @@ final class PageSubscriber implements EventSubscriberInterface
         }
 
         foreach ($event->getResult()->getElements() as $product) {
-            if ($product instanceof ProductEntity) {
-                $this->enrichProduct($product);
-            }
+            $this->enrichProduct($product);
         }
     }
 
@@ -61,13 +56,8 @@ final class PageSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $result = $event->getResult();
-        if (!$result) {
-            return;
-        }
-
-        $cmsPage = $result->first();
-        if (!$cmsPage || !method_exists($cmsPage, 'getSections')) {
+        $cmsPage = $event->getResult()->first();
+        if ($cmsPage === null) {
             return;
         }
 
