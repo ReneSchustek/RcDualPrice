@@ -3,3 +3,9 @@
 /node_modules/
 .php-cs-fixer.cache
 .phpunit.cache
+
+# KI-Konfiguration und -Artefakte (niemals committen)
+.ai/
+CLAUDE.md
+brief-template.md
+.gitignore-template
