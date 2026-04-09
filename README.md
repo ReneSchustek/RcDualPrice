@@ -1,5 +1,7 @@
 # RcDualPrice
 
+[![CI](https://github.com/ReneSchustek/RcDualPrice/actions/workflows/ci.yml/badge.svg)](https://github.com/ReneSchustek/RcDualPrice/actions/workflows/ci.yml)
+
 Shopware 6 Plugin — zeigt neben dem Hauptpreis automatisch den Netto- bzw. Bruttopreis an.
 
 ---

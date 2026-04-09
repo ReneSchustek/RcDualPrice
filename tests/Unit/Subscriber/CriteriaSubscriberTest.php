@@ -9,9 +9,18 @@ use Ruhrcoder\RcDualPrice\Service\ConfigService;
 use Ruhrcoder\RcDualPrice\Subscriber\CriteriaSubscriber;
 use Shopware\Core\Content\Product\Events\ProductListingCriteriaEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 final class CriteriaSubscriberTest extends TestCase
 {
+    private function createConfigService(mixed $activeValue): ConfigService
+    {
+        $systemConfig = $this->createMock(SystemConfigService::class);
+        $systemConfig->method('get')->willReturn($activeValue);
+
+        return new ConfigService($systemConfig);
+    }
+
     public function testGetSubscribedEventsReturnsArray(): void
     {
         $events = CriteriaSubscriber::getSubscribedEvents();
@@ -22,33 +31,29 @@ final class CriteriaSubscriberTest extends TestCase
 
     public function testOnCriteriaDoesNothingWhenPluginInactive(): void
     {
-        $configService = $this->createMock(ConfigService::class);
-        $configService->method('isDualPriceActive')->willReturn(false);
+        $subscriber = new CriteriaSubscriber($this->createConfigService(false));
 
-        $subscriber = new CriteriaSubscriber($configService);
-
-        $criteria = $this->createMock(Criteria::class);
-        $criteria->expects($this->never())->method('addAssociation');
+        $criteria = new Criteria();
 
         $event = $this->createMock(ProductListingCriteriaEvent::class);
-        $event->method('getCriteria')->willReturn($criteria);
+        $event->expects($this->never())->method('getCriteria');
 
         $subscriber->onCriteria($event);
+
+        $this->assertSame([], $criteria->getAssociations());
     }
 
     public function testOnCriteriaAddsCategoriesWhenPluginActive(): void
     {
-        $configService = $this->createMock(ConfigService::class);
-        $configService->method('isDualPriceActive')->willReturn(true);
+        $subscriber = new CriteriaSubscriber($this->createConfigService(null));
 
-        $subscriber = new CriteriaSubscriber($configService);
-
-        $criteria = $this->createMock(Criteria::class);
-        $criteria->expects($this->once())->method('addAssociation')->with('categories');
+        $criteria = new Criteria();
 
         $event = $this->createMock(ProductListingCriteriaEvent::class);
         $event->method('getCriteria')->willReturn($criteria);
 
         $subscriber->onCriteria($event);
+
+        $this->assertArrayHasKey('categories', $criteria->getAssociations());
     }
 }

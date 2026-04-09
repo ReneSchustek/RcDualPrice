@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Ruhrcoder\RcDualPrice\Tests\Unit\Subscriber;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Ruhrcoder\RcDualPrice\Service\CategoryDualPriceHelper;
 use Ruhrcoder\RcDualPrice\Service\ConfigService;
@@ -12,19 +13,20 @@ use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Product\Events\ProductListingResultEvent;
 use Shopware\Core\Content\Product\ProductEntity;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 final class PageSubscriberTest extends TestCase
 {
-    private ConfigService $configService;
-    private CategoryDualPriceHelper $categoryHelper;
+    private SystemConfigService&MockObject $systemConfig;
     private PageSubscriber $subscriber;
 
     protected function setUp(): void
     {
-        $this->configService = $this->createMock(ConfigService::class);
-        $this->categoryHelper = $this->createMock(CategoryDualPriceHelper::class);
-        $this->subscriber = new PageSubscriber($this->configService, $this->categoryHelper);
+        $this->systemConfig = $this->createMock(SystemConfigService::class);
+        $configService = new ConfigService($this->systemConfig);
+        $categoryHelper = new CategoryDualPriceHelper();
+        $this->subscriber = new PageSubscriber($configService, $categoryHelper);
     }
 
     public function testGetSubscribedEventsReturnsArray(): void
@@ -37,7 +39,7 @@ final class PageSubscriberTest extends TestCase
 
     public function testOnListingResultSkipsWhenPluginInactive(): void
     {
-        $this->configService->method('isDualPriceActive')->willReturn(false);
+        $this->systemConfig->method('get')->willReturn(false);
 
         $event = $this->createMock(ProductListingResultEvent::class);
         $event->expects($this->never())->method('getResult');
@@ -47,23 +49,17 @@ final class PageSubscriberTest extends TestCase
 
     public function testOnListingResultEnrichesProductsWhenActive(): void
     {
-        $this->configService->method('isDualPriceActive')->willReturn(true);
-        $this->configService->method('getCssStyles')->willReturn('color: #6c757d;');
+        $this->systemConfig->method('get')->willReturn(null);
 
         $category = new CategoryEntity();
         $category->setId('cat-1');
         $category->setCustomFields(['rc_dual_price_active' => true]);
 
-        $this->categoryHelper->method('isCategoryEntityDualPriceActive')
-            ->with($category)
-            ->willReturn(true);
-
         $product = new ProductEntity();
         $product->setId('prod-1');
-        $categories = new CategoryCollection([$category]);
-        $product->setCategories($categories);
+        $product->setCategories(new CategoryCollection([$category]));
 
-        $result = $this->createMock(EntitySearchResult::class);
+        $result = $this->createMock(ProductListingResult::class);
         $result->method('getElements')->willReturn(['prod-1' => $product]);
 
         $event = $this->createMock(ProductListingResultEvent::class);
@@ -74,23 +70,22 @@ final class PageSubscriberTest extends TestCase
         $extension = $product->getExtension('rc_dual_price_active');
         $this->assertNotNull($extension);
         $this->assertTrue($extension->get('enabled'));
-        $this->assertSame('color: #6c757d;', $extension->get('cssStyles'));
+        $this->assertStringContainsString('color:', (string) $extension->get('cssStyles'));
     }
 
     public function testEnrichProductSetsEnabledFalseWithoutMatchingCategory(): void
     {
-        $this->configService->method('isDualPriceActive')->willReturn(true);
-        $this->categoryHelper->method('isCategoryEntityDualPriceActive')->willReturn(false);
+        $this->systemConfig->method('get')->willReturn(null);
 
         $category = new CategoryEntity();
         $category->setId('cat-1');
-        $category->setCustomFields([]);
+        $category->setCustomFields(['rc_dual_price_active' => false]);
 
         $product = new ProductEntity();
         $product->setId('prod-1');
         $product->setCategories(new CategoryCollection([$category]));
 
-        $result = $this->createMock(EntitySearchResult::class);
+        $result = $this->createMock(ProductListingResult::class);
         $result->method('getElements')->willReturn(['prod-1' => $product]);
 
         $event = $this->createMock(ProductListingResultEvent::class);
@@ -105,12 +100,12 @@ final class PageSubscriberTest extends TestCase
 
     public function testEnrichProductSetsEnabledFalseWithoutCategories(): void
     {
-        $this->configService->method('isDualPriceActive')->willReturn(true);
+        $this->systemConfig->method('get')->willReturn(null);
 
         $product = new ProductEntity();
         $product->setId('prod-1');
 
-        $result = $this->createMock(EntitySearchResult::class);
+        $result = $this->createMock(ProductListingResult::class);
         $result->method('getElements')->willReturn(['prod-1' => $product]);
 
         $event = $this->createMock(ProductListingResultEvent::class);
