@@ -3,3 +3,12 @@
 /node_modules/
 .php-cs-fixer.cache
 .phpunit.cache
+
+# composer.lock — Library-Plugin (php.md:101)
+composer.lock
+
+# KI-Konfiguration und -Artefakte (niemals committen)
+.ai/
+CLAUDE.md
+brief-template.md
+.gitignore-template
