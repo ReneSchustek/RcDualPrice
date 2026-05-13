@@ -9,3 +9,5 @@
 CLAUDE.md
 brief-template.md
 .gitignore-template
+
+composer.lock
