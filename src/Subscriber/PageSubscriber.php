@@ -61,6 +61,9 @@ final class PageSubscriber implements EventSubscriberInterface
             return;
         }
 
+        // Rekursive CMS-Block-Traversierung: Section → Block → Slot → Data. Pro Slot-Daten-Objekt
+        // werden drei Quellen abgegriffen: getProduct() (Einzel-Produkt-Box), getProducts() (Cross-
+        // Selling/Cluster) und getListing() (Listing-Element). Andere Strukturen werden ignoriert.
         foreach ($cmsPage->getSections() ?? [] as $section) {
             foreach ($section->getBlocks() ?? [] as $block) {
                 foreach ($block->getSlots() ?? [] as $slot) {

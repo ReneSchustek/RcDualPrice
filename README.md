@@ -1,4 +1,4 @@
-# RcDualPrice
+﻿# RcDualPrice
 
 [![CI](https://github.com/ReneSchustek/RcDualPrice/actions/workflows/ci.yml/badge.svg)](https://github.com/ReneSchustek/RcDualPrice/actions/workflows/ci.yml)
 
@@ -97,4 +97,22 @@ composer quality   # cs-check + phpstan + test
 
 ---
 
+## Lizenz
+
+MIT — siehe `composer.json`.
+
+---
+
 Entwickelt von [Ruhrcoder](https://ruhrcoder.de)
+
+<!-- TRIAGE-WORKFLOW: auto-managed by triage-deploy.ps1 -->
+## Triage und Reviews
+
+- **Watcher starten:** `.\triage-watch.ps1` (bzw. `.\triage-watch-php.ps1` / `.\triage-watch-shopware.ps1`) im Projekt-Root
+- **Review on-demand:** `.\triage-review.ps1` -- laedt Projekt-Regeln aus `.ai/rules/` und uebergibt sie an Ollama
+- **Enterprise-Review (ERP-2026):** in Claude Code anfragen -- Claude orchestriert, Ollama macht mechanische Sub-Tasks
+- **Status-Dateien:** `.ai/triage-status.json`, `.ai/triage-escalation.md`, `.ai/reviews/*.md`, `.ai/erp/*.md`
+
+Volle Doku: `F:\Entwicklung\_Anleitungen\allgemein\triage-workflow.md`
+Routing-Regeln: `.ai/rules/ollama-delegation.md` und `.ai/rules/enterprise-review.md`
+<!-- /TRIAGE-WORKFLOW -->
