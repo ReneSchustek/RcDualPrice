@@ -104,3 +104,5 @@ MIT — siehe `composer.json`.
 ---
 
 Entwickelt von [Ruhrcoder](https://ruhrcoder.de)
+
+<!-- TRIAGE-WORKFLOW: auto-managed by triage-deploy.ps1 -->
