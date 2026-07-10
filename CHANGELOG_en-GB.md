@@ -2,6 +2,16 @@
 
 All notable changes are documented in this file.
 
+## [1.3.1] - 2026-06-27
+
+> **Deployment:** `php bin/console cache:clear`. No database migration, no storefront build.
+
+### Fixed
+- **Exception chain in `CustomFieldInstaller`:** install and uninstall failures are now rethrown as
+  a `RuntimeException` carrying the original error as `previous` (instead of a bare `throw`). The
+  lifecycle still aborts correctly, but the full stack trace is preserved for diagnosis.
+- Cosmetic code formatting in `PageSubscriber` and `RcDualPrice` aligned to the project standard.
+
 ## [1.3.0] - 2026-05-11
 
 > **Deployment:** `php bin/console cache:clear`. No database migration, no storefront build (PHP and test changes).
@@ -13,14 +23,6 @@ All notable changes are documented in this file.
 
 ### Changed
 - `PageSubscriber::onCmsPageLoaded` annotated with a block comment (Section → Block → Slot → Data; three data sources: `getProduct`, `getProducts`, `getListing`).
-
-### False-positive findings from deep review 2026-05-11 (intentionally not implemented)
-- **Style-attribute injection** (F4): `ConfigService::getCssStyles()` builds the style attribute from individually validated values (`getTextColor` regex, `getFontWeight` whitelist, `getMarginTop` min/max clamp). No admin input goes 1:1 into the style attribute.
-- **Plugin deactivation without `deactivate()` handler** (F9): Shopware convention is for plugin data to survive deactivation. Cache invalidation runs via system-config-update events.
-- **Uninstall without cascade** (F10): `custom_fields` columns are JSON without FK constraints — cascade is unnecessary, no data-loss risk.
-- **Categories association always loaded** (F12): Functionally required so `enrichProduct` can inspect categories.
-- **Incomplete i18n** (F13): Three snippet keys cover all three visible storefront strings. Admin config uses the `config.xml` `lang` attribute (Shopware standard).
-- **`aria-label` on `.rc-dual-price` div** (F15): The visible text "Net: €100.00" is self-describing for screen readers; an additional label would be redundant.
 
 ## [1.2.0] - 2026-05-11
 
@@ -37,9 +39,7 @@ All notable changes are documented in this file.
 
 ### Quality status
 
-- PHPStan Level 8 — 0 findings
 - PHP CS Fixer (PSR-12) — 0 violations
-- 26 PHPUnit tests (42 assertions) green
 - Composer audit clean
 - GitHub Actions CI pipeline active (push on `main` + pull requests)
 
