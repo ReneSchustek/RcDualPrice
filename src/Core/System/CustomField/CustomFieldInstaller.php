@@ -88,7 +88,8 @@ final class CustomFieldInstaller
                 'message' => $exception->getMessage(),
             ]);
 
-            throw $exception;
+            // Original als previous erhalten (Stacktrace-Chain), Shopware bricht den Install weiterhin ab.
+            throw new \RuntimeException('RcDualPrice: CustomFieldSet-Install fehlgeschlagen.', 0, $exception);
         }
     }
 
@@ -122,7 +123,8 @@ final class CustomFieldInstaller
                 'message' => $exception->getMessage(),
             ]);
 
-            throw $exception;
+            // Original als previous erhalten (Stacktrace-Chain), Shopware bricht den Uninstall weiterhin ab.
+            throw new \RuntimeException('RcDualPrice: CustomFieldSet-Uninstall fehlgeschlagen.', 0, $exception);
         }
     }
 }
