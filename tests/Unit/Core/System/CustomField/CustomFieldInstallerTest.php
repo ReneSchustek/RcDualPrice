@@ -95,9 +95,13 @@ final class CustomFieldInstallerTest extends TestCase
                 }),
             );
 
-        $this->expectExceptionObject($boom);
-
-        (new CustomFieldInstaller($this->repository, $this->logger))->install($this->context);
+        try {
+            (new CustomFieldInstaller($this->repository, $this->logger))->install($this->context);
+            self::fail('Erwartete RuntimeException wurde nicht geworfen.');
+        } catch (\RuntimeException $caught) {
+            self::assertSame('RcDualPrice: CustomFieldSet-Install fehlgeschlagen.', $caught->getMessage());
+            self::assertSame($boom, $caught->getPrevious());
+        }
     }
 
     public function testUninstallDeletesExistingSet(): void
@@ -138,9 +142,13 @@ final class CustomFieldInstallerTest extends TestCase
             ->method('error')
             ->with('RcDualPrice: CustomFieldSet-Uninstall fehlgeschlagen.', self::anything());
 
-        $this->expectExceptionObject($boom);
-
-        (new CustomFieldInstaller($this->repository, $this->logger))->uninstall($this->context);
+        try {
+            (new CustomFieldInstaller($this->repository, $this->logger))->uninstall($this->context);
+            self::fail('Erwartete RuntimeException wurde nicht geworfen.');
+        } catch (\RuntimeException $caught) {
+            self::assertSame('RcDualPrice: CustomFieldSet-Uninstall fehlgeschlagen.', $caught->getMessage());
+            self::assertSame($boom, $caught->getPrevious());
+        }
     }
 
     public function testNullLoggerIstZulaessigerDefault(): void
