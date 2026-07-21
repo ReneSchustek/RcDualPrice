@@ -2,6 +2,44 @@
 
 All notable changes are documented in this file.
 
+## [1.4.0] - 2026-07-21 — Category-accurate in the cart plus second price on sliders and cross-selling
+
+> **Deployment:** `php bin/console plugin:update RcDualPrice && php bin/console cache:clear`. No schema break, no migration.
+
+### Fixed
+
+- **The cart showed the second price for every line item as soon as the plugin was globally active** — regardless of whether the product's category had enabled the second price at all. Product detail and cards respected the category activation, the cart did not. The category flag is now resolved per line item while the cart is built and travels into cart, checkout and order; the display follows it. Existing orders keep their previous behaviour.
+- **No second price on CMS product sliders and in cross-selling ("customers also bought")** — even though it was present on regular cards of the same category. Cause: the products on these surfaces lacked the category association the display relies on. Sliders and cross-selling now load the category and are enriched.
+- **No second price on the wishlist** — the wishlist cards did not show it, even though the products are in flagged categories. The wishlist (guest and logged-in) now loads the category and is enriched.
+
+## [1.3.3] - 2026-07-20 — Second-price correctness: list price, tax rate, rounding
+
+> **Deployment:** `php bin/console plugin:update RcDualPrice && php bin/console cache:clear`. No schema break, no migration.
+
+### Fixed
+
+- **The list-price (RRP) strike-through second price now actually renders:** On the product detail page and in product cards, the Shopware core set `isListPrice`/`listPrice` via `{% set %}` inside the overridden block — those variables are not visible in the overriding block after `{{ parent() }}` (`is defined` = false), so the struck-through list-price second price was **never** rendered. It is now derived in the child block from the available price object (`price`/`real`).
+- **Tax rate taken from the actually applied value instead of the base rate:** Detail page, cards and tier-price rows used `product.tax.taxRate` (the tax group's base rate), which is wrong under country-dependent tax rules and in tax-free contexts. It now reads the actually applied rate from `calculatedPrice.calculatedTaxes` — as the already-correct cart path does — per tier for staggered prices.
+- **Net/gross conversion rounded deterministically:** The conversion lived untested and unrounded inline in Twig (rounding only implicit at display) → possible sub-cent drift. It now lives in the tested PHP service `DualPriceCalculator` (rounded to 2 decimals); for tax-free/unknown tax states and rate 0 it deliberately yields "nothing".
+
+### Changed
+
+- Internal code maintenance with no functional impact (minor performance tuning in the price rendering, additional tests).
+
+## [1.3.2] - 2026-07-20
+
+> **Deployment:** `php bin/console cache:clear`.
+
+### Fixed
+
+- **Tax-free contexts:** No secondary price is fabricated for `tax-free` any more (previously a gross value was wrongly added on top of a tax-free price) — only the real tax states `gross`/`net` produce a counter price.
+- **Currency symbol in the cart:** With a missing ISO code the secondary price now falls back to the context currency of the core `currency` filter (previously `|default` turned `null` into an empty string, which could yield a missing/wrong currency symbol).
+
+### Changed
+
+- **Performance:** The `categories` association is no longer loaded for the autocomplete suggest (no secondary price is rendered there).
+- **Regression guard:** A contract test pins the three storefront overrides (six block names) against the core.
+
 ## [1.3.1] - 2026-06-27
 
 > **Deployment:** `php bin/console cache:clear`. No database migration, no storefront build.

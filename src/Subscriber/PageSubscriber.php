@@ -6,11 +6,14 @@ namespace Ruhrcoder\RcDualPrice\Subscriber;
 
 use Ruhrcoder\RcDualPrice\Service\CategoryDualPriceHelper;
 use Ruhrcoder\RcDualPrice\Service\ConfigService;
+use Shopware\Core\Checkout\Customer\Event\CustomerWishlistProductListingResultEvent;
 use Shopware\Core\Content\Cms\Events\CmsPageLoadedEvent;
+use Shopware\Core\Content\Product\Events\ProductCrossSellingsLoadedEvent;
 use Shopware\Core\Content\Product\Events\ProductListingResultEvent;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Storefront\Page\Product\ProductPageLoadedEvent;
+use Shopware\Storefront\Pagelet\Wishlist\GuestWishlistPageletLoadedEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 final class PageSubscriber implements EventSubscriberInterface
@@ -24,9 +27,12 @@ final class PageSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            ProductPageLoadedEvent::class    => 'onProductPageLoaded',
-            ProductListingResultEvent::class => 'onListingResult',
-            CmsPageLoadedEvent::class        => 'onCmsPageLoaded',
+            ProductPageLoadedEvent::class          => 'onProductPageLoaded',
+            ProductListingResultEvent::class       => 'onListingResult',
+            CmsPageLoadedEvent::class                          => 'onCmsPageLoaded',
+            ProductCrossSellingsLoadedEvent::class             => 'onCrossSellingsLoaded',
+            CustomerWishlistProductListingResultEvent::class   => 'onCustomerWishlistResult',
+            GuestWishlistPageletLoadedEvent::class             => 'onGuestWishlistLoaded',
         ];
     }
 
@@ -46,6 +52,43 @@ final class PageSubscriber implements EventSubscriberInterface
         }
 
         foreach ($event->getResult()->getElements() as $product) {
+            $this->enrichProduct($product);
+        }
+    }
+
+    public function onCrossSellingsLoaded(ProductCrossSellingsLoadedEvent $event): void
+    {
+        if (!$this->configService->isDualPriceActive()) {
+            return;
+        }
+
+        // Cross-Selling wird oft per AJAX-Route geladen (kein CmsPageLoadedEvent). Hier werden die
+        // Produkte aller Cross-Selling-Gruppen mit der Extension angereichert.
+        foreach ($event->getCrossSellings() as $crossSelling) {
+            foreach ($crossSelling->getProducts() as $product) {
+                $this->enrichProduct($product);
+            }
+        }
+    }
+
+    public function onCustomerWishlistResult(CustomerWishlistProductListingResultEvent $event): void
+    {
+        if (!$this->configService->isDualPriceActive()) {
+            return;
+        }
+
+        foreach ($event->getResult()->getEntities() as $product) {
+            $this->enrichProduct($product);
+        }
+    }
+
+    public function onGuestWishlistLoaded(GuestWishlistPageletLoadedEvent $event): void
+    {
+        if (!$this->configService->isDualPriceActive()) {
+            return;
+        }
+
+        foreach ($event->getPagelet()->getSearchResult()->getProducts() as $product) {
             $this->enrichProduct($product);
         }
     }

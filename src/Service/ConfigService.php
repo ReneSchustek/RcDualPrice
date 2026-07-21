@@ -9,9 +9,12 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 final class ConfigService
 {
     private const PLUGIN_CONFIG_KEY = 'RcDualPrice.config';
+    private const DEFAULT_TEXT_COLOR = '#6c757d';
 
     /** @var array<string, mixed> */
     private array $cache = [];
+
+    private ?string $cssStyles = null;
 
     public function __construct(
         private readonly SystemConfigService $systemConfigService,
@@ -25,11 +28,11 @@ final class ConfigService
 
     public function getTextColor(): string
     {
-        $color = (string) $this->get('.textColor', '#6c757d');
+        $color = (string) $this->get('.textColor', self::DEFAULT_TEXT_COLOR);
 
         // Nur bekannte CSS-Farbformate zulassen — Admin-Eingabe landet ungefiltert im style-Attribut
         if (!preg_match('/^(#[0-9a-fA-F]{3,8}|[a-zA-Z]+|rgb\(\d+,\s*\d+,\s*\d+\)|rgba\(\d+,\s*\d+,\s*\d+,\s*[\d.]+\))$/', $color)) {
-            return '#6c757d';
+            return self::DEFAULT_TEXT_COLOR;
         }
 
         return $color;
@@ -56,6 +59,12 @@ final class ConfigService
 
     public function getCssStyles(): string
     {
+        // Memoized: wird pro angereichertem Produkt (PageSubscriber) und pro Line-Item (Twig-Funktion)
+        // aufgerufen; die zugrunde liegenden Config-Werte sind innerhalb eines Requests invariant.
+        if ($this->cssStyles !== null) {
+            return $this->cssStyles;
+        }
+
         $fontSize = match($this->getFontSize()) {
             'small'  => '0.875rem',
             'normal' => '1rem',
@@ -63,7 +72,7 @@ final class ConfigService
             default  => '0.875rem',
         };
 
-        return sprintf(
+        return $this->cssStyles = sprintf(
             'color: %s; font-size: %s; font-weight: %s; margin-top: %dpx;',
             $this->getTextColor(),
             $fontSize,

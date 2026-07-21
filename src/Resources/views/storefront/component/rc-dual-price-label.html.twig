@@ -8,12 +8,21 @@
         currencyIsoCode – string|null – ISO-Code der Währung (optional, für currency-Filter)
         hideLabel       – bool        – Wenn true, wird nur der Betrag ohne "Netto:"/"Brutto:" ausgegeben
 #}
-{% if taxRate is not null and taxRate != 0 %}
+{#
+    Nur die beiden echten Steuer-States 'gross'/'net' erzeugen einen Zweitpreis. 'tax-free' (und
+    jeder unbekannte State) wird bewusst NICHT gerendert -- sonst wuerde auf einen steuerfreien Preis
+    ein Brutto-Wert fabriziert. currencyIsoCode wird OHNE |default an den currency-Filter gegeben:
+    bei null faellt der Core-Filter auf die Kontextwaehrung zurueck (|default machte aus null einen
+    Leerstring, was dem NumberFormatter einen leeren ISO-Code durchreicht).
+#}
+{# Umrechnung liegt jetzt im getesteten PHP-Service (rc_dual_price_convert), nicht mehr inline im Twig:
+   deterministisch gerundet (keine sub-Cent-Drift) und liefert null fuer tax-free/unbekannten State/Satz 0
+   -> dann wird bewusst nichts gerendert (kein fabrizierter Brutto-Wert auf einen steuerfreien Preis). #}
+{% set dualPrice = rc_dual_price_convert(unitPrice, taxRate, taxState) %}
+{% if dualPrice is not null %}
     {% if taxState == 'gross' %}
-        {% set dualPrice = unitPrice / (1 + (taxRate / 100)) %}
-        {% if not (hideLabel|default(false)) %}{{ "rc-dual-price.labelNet"|trans }}: {% endif %}{{ dualPrice|currency(currencyIsoCode|default) }}
-    {% else %}
-        {% set dualPrice = unitPrice * (1 + (taxRate / 100)) %}
-        {% if not (hideLabel|default(false)) %}{{ "rc-dual-price.labelGross"|trans }}: {% endif %}{{ dualPrice|currency(currencyIsoCode|default) }}
+        {% if not (hideLabel|default(false)) %}{{ "rc-dual-price.labelNet"|trans }}: {% endif %}{{ dualPrice|currency(currencyIsoCode) }}
+    {% elseif taxState == 'net' %}
+        {% if not (hideLabel|default(false)) %}{{ "rc-dual-price.labelGross"|trans }}: {% endif %}{{ dualPrice|currency(currencyIsoCode) }}
     {% endif %}
 {% endif %}

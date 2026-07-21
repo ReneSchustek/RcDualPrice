@@ -14,9 +14,12 @@
 
         <service id="Ruhrcoder\RcDualPrice\Service\CategoryDualPriceHelper"/>
 
+        <service id="Ruhrcoder\RcDualPrice\Service\DualPriceCalculator"/>
+
         <service id="Ruhrcoder\RcDualPrice\Twig\DualPriceTwigExtension">
             <tag name="twig.extension"/>
             <argument type="service" id="Ruhrcoder\RcDualPrice\Service\ConfigService"/>
+            <argument type="service" id="Ruhrcoder\RcDualPrice\Service\DualPriceCalculator"/>
         </service>
 
         <service id="Ruhrcoder\RcDualPrice\Subscriber\CriteriaSubscriber">
@@ -28,6 +31,19 @@
             <tag name="kernel.event_subscriber"/>
             <argument type="service" id="Ruhrcoder\RcDualPrice\Service\ConfigService"/>
             <argument type="service" id="Ruhrcoder\RcDualPrice\Service\CategoryDualPriceHelper"/>
+        </service>
+
+        <service id="Ruhrcoder\RcDualPrice\Checkout\DualPriceCartCollector">
+            <tag name="shopware.cart.collector"/>
+            <argument type="service" id="Ruhrcoder\RcDualPrice\Service\ConfigService"/>
+            <argument type="service" id="Ruhrcoder\RcDualPrice\Service\CategoryDualPriceHelper"/>
+            <argument type="service" id="sales_channel.product.repository"/>
+        </service>
+
+        <service id="Ruhrcoder\RcDualPrice\Cms\ProductSliderCategoriesResolverDecorator"
+                 decorates="Shopware\Core\Content\Product\Cms\ProductSliderCmsElementResolver">
+            <argument type="service" id="Ruhrcoder\RcDualPrice\Cms\ProductSliderCategoriesResolverDecorator.inner"/>
+            <argument type="service" id="Ruhrcoder\RcDualPrice\Service\ConfigService"/>
         </service>
     </services>
 </container>

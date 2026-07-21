@@ -21,11 +21,22 @@ use Shopware\Core\Content\Cms\CmsPageCollection;
 use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Cms\Events\CmsPageLoadedEvent;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductBoxStruct;
+use Shopware\Core\Checkout\Customer\Event\CustomerWishlistProductListingResultEvent;
+use Shopware\Core\Content\Product\Events\ProductCrossSellingsLoadedEvent;
 use Shopware\Core\Content\Product\Events\ProductListingResultEvent;
+use Shopware\Core\Content\Product\SalesChannel\CrossSelling\CrossSellingElement;
+use Shopware\Core\Content\Product\SalesChannel\CrossSelling\CrossSellingElementCollection;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Storefront\Pagelet\Wishlist\GuestWishlistPageletLoadedEvent;
+use Symfony\Component\HttpFoundation\Request;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
+use Shopware\Core\Framework\Struct\ArrayStruct;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 final class PageSubscriberTest extends TestCase
@@ -46,7 +57,72 @@ final class PageSubscriberTest extends TestCase
         $events = PageSubscriber::getSubscribedEvents();
 
         $this->assertIsArray($events);
-        $this->assertCount(3, $events);
+        $this->assertCount(6, $events);
+        $this->assertArrayHasKey(ProductCrossSellingsLoadedEvent::class, $events);
+        $this->assertArrayHasKey(CustomerWishlistProductListingResultEvent::class, $events);
+        $this->assertArrayHasKey(GuestWishlistPageletLoadedEvent::class, $events);
+    }
+
+    public function testOnCrossSellingsLoadedEnrichesCrossSellingProducts(): void
+    {
+        $this->systemConfig->method('get')->willReturnCallback(
+            static fn (string $key): mixed => str_ends_with($key, '.active') ? true : null,
+        );
+
+        $product = new ProductEntity();
+        $product->setId('cross-selling-product');
+        $category = new CategoryEntity();
+        $category->setId('flagged-category');
+        $category->setCustomFields(['rc_dual_price_active' => true]);
+        $product->setCategories(new CategoryCollection([$category]));
+
+        $element = new CrossSellingElement();
+        $element->setProducts(new ProductCollection([$product]));
+
+        $event = new ProductCrossSellingsLoadedEvent(
+            new CrossSellingElementCollection([$element]),
+            $this->createMock(SalesChannelContext::class),
+        );
+
+        $this->subscriber->onCrossSellingsLoaded($event);
+
+        $extension = $product->getExtension('rc_dual_price_active');
+        self::assertInstanceOf(ArrayStruct::class, $extension);
+        self::assertTrue($extension->get('enabled'));
+    }
+
+    public function testOnCustomerWishlistResultEnrichesProducts(): void
+    {
+        $this->systemConfig->method('get')->willReturnCallback(
+            static fn (string $key): mixed => str_ends_with($key, '.active') ? true : null,
+        );
+
+        $product = new ProductEntity();
+        $product->setId('wishlist-product');
+        $category = new CategoryEntity();
+        $category->setId('flagged-category');
+        $category->setCustomFields(['rc_dual_price_active' => true]);
+        $product->setCategories(new CategoryCollection([$category]));
+
+        $result = new EntitySearchResult(
+            'product',
+            1,
+            new ProductCollection([$product]),
+            null,
+            new Criteria(),
+            Context::createDefaultContext(),
+        );
+        $event = new CustomerWishlistProductListingResultEvent(
+            new Request(),
+            $result,
+            $this->createMock(SalesChannelContext::class),
+        );
+
+        $this->subscriber->onCustomerWishlistResult($event);
+
+        $extension = $product->getExtension('rc_dual_price_active');
+        self::assertInstanceOf(ArrayStruct::class, $extension);
+        self::assertTrue($extension->get('enabled'));
     }
 
     public function testOnListingResultSkipsWhenPluginInactive(): void
@@ -195,19 +271,6 @@ final class PageSubscriberTest extends TestCase
 
         $this->subscriber->onCmsPageLoaded($event);
         $this->assertTrue(true);
-    }
-
-    private function buildActiveProduct(string $id): ProductEntity
-    {
-        $category = new CategoryEntity();
-        $category->setId('cat-' . $id);
-        $category->setCustomFields(['rc_dual_price_active' => true]);
-
-        $product = new ProductEntity();
-        $product->setId($id);
-        $product->setCategories(new CategoryCollection([$category]));
-
-        return $product;
     }
 
     private function buildActiveSalesChannelProduct(string $id): SalesChannelProductEntity

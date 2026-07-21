@@ -4,15 +4,25 @@
 {% block buy_widget_price_content %}
     {{ parent() }}
 
-    {% set dualTaxRate = product.tax ? product.tax.taxRate : null %}
+    {# Steuersatz aus dem tatsaechlich angewandten `calculatedTaxes` lesen, NICHT aus `product.tax.taxRate`
+       (dem Basissatz der Steuergruppe) -- sonst falsch bei laenderabhaengigen Steuerregeln und in
+       steuerfreien Kontexten. Analog zum bereits korrekten Line-Item-Pfad. `price` ist hier in Scope
+       (vom aeusseren Core-Block gesetzt, wird unten fuer price.unitPrice ohnehin genutzt). #}
+    {% set dualTax = price.calculatedTaxes.first %}
+    {% set dualTaxRate = dualTax ? dualTax.taxRate : null %}
+
+    {# `isListPrice`/`listPrice` setzt der Core per {% set %} INNERHALB von buy_widget_price_content --
+       diese Variablen leaken nicht ueber {{ parent() }} in den ueberschreibenden Block. Deshalb hier
+       aus dem verfuegbaren `price` ableiten, sonst rendert der durchgestrichene UVP-Zweitpreis nie. #}
+    {% set dualIsListPrice = price.listPrice and price.listPrice.percentage > 0 %}
 
     {% if product.extensions.rc_dual_price_active.enabled and product.calculatedPrice and dualTaxRate is not null and dualTaxRate != 0 %}
         <div class="rc-dual-price" style="{{ product.extensions.rc_dual_price_active.cssStyles }}">
             {# UVP-Zweitpreis (durchgestrichen) wenn Listenpreis vorhanden #}
-            {% if isListPrice is defined and isListPrice %}
+            {% if dualIsListPrice %}
                 <s class="rc-dual-price-list-price">
                     {% sw_include '@RcDualPrice/storefront/component/rc-dual-price-label.html.twig' with {
-                        unitPrice: listPrice.price,
+                        unitPrice: price.listPrice.price,
                         taxRate: dualTaxRate,
                         taxState: context.taxState,
                         currencyIsoCode: currencyIsoCode
@@ -31,7 +41,11 @@
     {% endif %}
 {% endblock %}
 
-{# Staffelpreise: Tabellenüberschrift um Zweitpreis-Spalte erweitern #}
+{# Staffelpreise: Tabellenüberschrift um Zweitpreis-Spalte erweitern.
+   Kein {{ parent() }}: Der Core-Block ist EINE <tr> mit fixen <th>; die Zweitpreis-Spalte muss MITTEN
+   in die Zeile (zwischen Preis und Referenzpreis). Ein parent()-Aufruf wuerde die komplette Core-Zeile
+   davor ausgeben und liesse sich nicht aufbrechen -- daher wird die Zeile bewusst nachgebaut. Bei einer
+   kuenftigen Core-Aenderung an den Kopf-Spalten ist dieser Block entsprechend nachzuziehen. #}
 {% block buy_widget_price_block_table_head_inner %}
     <tr class="product-block-prices-row">
         <th scope="col" class="product-block-prices-cell">
@@ -40,7 +54,8 @@
         <th scope="col" class="product-block-prices-cell">
             {{ 'detail.dataColumnPrice'|trans|sw_sanitize }}
         </th>
-        {% if product.extensions.rc_dual_price_active.enabled and product.tax and product.tax.taxRate != 0 %}
+        {% set headTax = product.calculatedPrice.calculatedTaxes.first %}
+        {% if product.extensions.rc_dual_price_active.enabled and headTax and headTax.taxRate != 0 %}
             <th scope="col" class="product-block-prices-cell">
                 {% if context.taxState == 'gross' %}
                     {{ "rc-dual-price.labelNet"|trans }}
@@ -65,11 +80,13 @@
         } only %}
     </td>
 
-    {% if product.extensions.rc_dual_price_active.enabled and product.tax and product.tax.taxRate != 0 %}
+    {# Steuersatz je Staffel aus deren eigenem calculatedTaxes (nicht dem Basissatz). #}
+    {% set tierTax = price.calculatedTaxes.first %}
+    {% if product.extensions.rc_dual_price_active.enabled and tierTax and tierTax.taxRate != 0 %}
         <td class="product-block-prices-cell">
             {% sw_include '@RcDualPrice/storefront/component/rc-dual-price-label.html.twig' with {
                 unitPrice: price.unitPrice,
-                taxRate: product.tax.taxRate,
+                taxRate: tierTax.taxRate,
                 taxState: context.taxState,
                 currencyIsoCode: currencyIsoCode,
                 hideLabel: true

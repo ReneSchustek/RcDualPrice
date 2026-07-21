@@ -4,15 +4,23 @@
 {% block component_product_box_price %}
     {{ parent() }}
 
-    {% set dualTaxRate = product.tax ? product.tax.taxRate : null %}
+    {# Steuersatz aus dem angewandten `calculatedTaxes` statt `product.tax.taxRate` (Basissatz) --
+       korrekt bei Steuerregeln/steuerfreien Kontexten. `real` ist hier in Scope (aeusserer Core-Block),
+       wird unten fuer real.unitPrice ohnehin genutzt. #}
+    {% set dualTax = real.calculatedTaxes.first %}
+    {% set dualTaxRate = dualTax ? dualTax.taxRate : null %}
+
+    {# `isListPrice`/`price` setzt der Core per {% set %} INNERHALB dieses Blocks und leakt nicht ueber
+       {{ parent() }} in den Override. Aus dem verfuegbaren `real` ableiten, sonst rendert der UVP nie. #}
+    {% set dualIsListPrice = real.listPrice and real.listPrice.percentage > 0 %}
 
     {% if product.extensions.rc_dual_price_active.enabled and dualTaxRate is not null and dualTaxRate != 0 %}
         <div class="rc-dual-price" style="{{ product.extensions.rc_dual_price_active.cssStyles }}">
             {# UVP-Zweitpreis (durchgestrichen) wenn Listenpreis vorhanden #}
-            {% if isListPrice is defined and isListPrice and not (displayFrom is defined and displayFrom) and not (displayFromVariants is defined and displayFromVariants) %}
+            {% if dualIsListPrice and not (displayFrom is defined and displayFrom) and not (displayFromVariants is defined and displayFromVariants) %}
                 <s class="rc-dual-price-list-price">
                     {% sw_include '@RcDualPrice/storefront/component/rc-dual-price-label.html.twig' with {
-                        unitPrice: price.listPrice.price,
+                        unitPrice: real.listPrice.price,
                         taxRate: dualTaxRate,
                         taxState: context.taxState,
                         currencyIsoCode: currencyIsoCode

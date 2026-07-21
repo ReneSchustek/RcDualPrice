@@ -101,4 +101,78 @@ final class ConfigServiceTest extends TestCase
 
         $this->assertSame('rgb(255, 0, 0)', $service->getTextColor());
     }
+
+    public function testGetFontWeightReturnsDefaultNormal(): void
+    {
+        $this->systemConfig->method('get')->willReturn(null);
+
+        $this->assertSame('normal', $this->configService->getFontWeight());
+    }
+
+    public function testGetFontWeightAcceptsBold(): void
+    {
+        $this->configFor('fontWeight', 'bold');
+
+        $this->assertSame('bold', $this->configService->getFontWeight());
+    }
+
+    public function testGetFontWeightRejectsMaliciousInput(): void
+    {
+        // fontWeight fliesst ins style-Attribut — nur 'normal'/'bold' erlaubt, sonst Fallback.
+        $this->configFor('fontWeight', 'bold; display:none');
+
+        $this->assertSame('normal', $this->configService->getFontWeight());
+    }
+
+    public function testGetFontSizeReturnsDefaultSmall(): void
+    {
+        $this->systemConfig->method('get')->willReturn(null);
+
+        $this->assertSame('small', $this->configService->getFontSize());
+    }
+
+    public function testGetFontSizeReturnsConfiguredValue(): void
+    {
+        $this->configFor('fontSize', 'large');
+
+        $this->assertSame('large', $this->configService->getFontSize());
+    }
+
+    public function testGetMarginTopClampsAboveHundred(): void
+    {
+        // Begrenzung 0-100px, da der Wert ins style-Attribut fliesst.
+        $this->configFor('marginTop', 9999);
+
+        $this->assertSame(100, $this->configService->getMarginTop());
+    }
+
+    public function testGetMarginTopClampsBelowZero(): void
+    {
+        $this->configFor('marginTop', -50);
+
+        $this->assertSame(0, $this->configService->getMarginTop());
+    }
+
+    public function testGetCssStylesReflectsFontWeightAndMarginTop(): void
+    {
+        $this->systemConfig->method('get')->willReturnCallback(
+            fn(string $key) => match(true) {
+                str_ends_with($key, 'fontWeight') => 'bold',
+                str_ends_with($key, 'marginTop') => 12,
+                default => null,
+            }
+        );
+
+        $css = $this->configService->getCssStyles();
+
+        $this->assertStringContainsString('font-weight: bold;', $css);
+        $this->assertStringContainsString('margin-top: 12px;', $css);
+    }
+
+    private function configFor(string $suffix, mixed $value): void
+    {
+        $this->systemConfig->method('get')->willReturnCallback(
+            fn(string $key) => str_ends_with($key, $suffix) ? $value : null,
+        );
+    }
 }

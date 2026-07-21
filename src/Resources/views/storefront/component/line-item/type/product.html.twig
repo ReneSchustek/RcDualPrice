@@ -4,7 +4,11 @@
 {% block component_line_item_type_product_col_unit_price %}
     {{ parent() }}
 
-    {% if rc_dual_price_active() and lineItem.price %}
+    {# Per-Kategorie-Scoping aus dem Cart-Collector (reist in Cart + Order). Fehlt der Payload-Key
+       (z. B. Alt-Bestellungen vor diesem Feature), Rueckfall auf die globale Aktivierung. #}
+    {% set rcDualPriceActive = lineItem.payload.rcDualPriceActive is defined ? lineItem.payload.rcDualPriceActive : rc_dual_price_active() %}
+
+    {% if rcDualPriceActive and lineItem.price %}
         {% set taxRate = lineItem.price.calculatedTaxes.first ? lineItem.price.calculatedTaxes.first.taxRate : null %}
         {% if taxRate is not null and taxRate != 0 %}
             <div class="line-item-unit-price">
@@ -21,11 +25,17 @@
     {% endif %}
 {% endblock %}
 
-{# Zweitpreis beim Gesamtpreis im Warenkorb, Off-Canvas-Cart, Checkout und Bestellhistorie #}
+{# Zweitpreis beim Gesamtpreis (Spalte "Summe") im Warenkorb, Checkout, Bestellabschluss und Bestellhistorie.
+   Der Core rendert diesen Block ausschliesslich, wenn die Summen-Spalte ueberhaupt existiert
+   ({% if showSubtotal %} im Eltern-Template). Ein eigener showSubtotal-Check waere hier redundant und
+   nur eine Fehlerquelle — der Zweitpreis erscheint einheitlich immer dann unter "Summe", wenn die
+   Spalte da ist (analog zum Einzelpreis-Block oben). #}
 {% block component_line_item_type_product_col_total_price %}
     {{ parent() }}
 
-    {% if rc_dual_price_active() and lineItem.price and showSubtotal is defined and showSubtotal %}
+    {% set rcDualPriceActive = lineItem.payload.rcDualPriceActive is defined ? lineItem.payload.rcDualPriceActive : rc_dual_price_active() %}
+
+    {% if rcDualPriceActive and lineItem.price %}
         {% set taxRate = lineItem.price.calculatedTaxes.first ? lineItem.price.calculatedTaxes.first.taxRate : null %}
         {% if taxRate is not null and taxRate != 0 %}
             <div class="line-item-total-price">
