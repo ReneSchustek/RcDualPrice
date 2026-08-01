@@ -1,0 +1,161 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Ruhrcoder\RcDualPrice\Subscriber;
+
+use Ruhrcoder\RcDualPrice\Service\CategoryDualPriceHelper;
+use Ruhrcoder\RcDualPrice\Service\ConfigService;
+use Shopware\Core\Checkout\Customer\Event\CustomerWishlistProductListingResultEvent;
+use Shopware\Core\Content\Cms\Events\CmsPageLoadedEvent;
+use Shopware\Core\Content\Product\Events\ProductCrossSellingsLoadedEvent;
+use Shopware\Core\Content\Product\Events\ProductListingResultEvent;
+use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Framework\Struct\ArrayStruct;
+use Shopware\Storefront\Page\Product\ProductPageLoadedEvent;
+use Shopware\Storefront\Pagelet\Wishlist\GuestWishlistPageletLoadedEvent;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+
+final class PageSubscriber implements EventSubscriberInterface
+{
+    public function __construct(
+        private readonly ConfigService $configService,
+        private readonly CategoryDualPriceHelper $categoryHelper,
+    ) {
+    }
+
+    public static function getSubscribedEvents(): array
+    {
+        return [
+            ProductPageLoadedEvent::class          => 'onProductPageLoaded',
+            ProductListingResultEvent::class       => 'onListingResult',
+            CmsPageLoadedEvent::class                          => 'onCmsPageLoaded',
+            ProductCrossSellingsLoadedEvent::class             => 'onCrossSellingsLoaded',
+            CustomerWishlistProductListingResultEvent::class   => 'onCustomerWishlistResult',
+            GuestWishlistPageletLoadedEvent::class             => 'onGuestWishlistLoaded',
+        ];
+    }
+
+    public function onProductPageLoaded(ProductPageLoadedEvent $event): void
+    {
+        if (!$this->configService->isDualPriceActive()) {
+            return;
+        }
+
+        $this->enrichProduct($event->getPage()->getProduct());
+    }
+
+    public function onListingResult(ProductListingResultEvent $event): void
+    {
+        if (!$this->configService->isDualPriceActive()) {
+            return;
+        }
+
+        foreach ($event->getResult()->getElements() as $product) {
+            $this->enrichProduct($product);
+        }
+    }
+
+    public function onCrossSellingsLoaded(ProductCrossSellingsLoadedEvent $event): void
+    {
+        if (!$this->configService->isDualPriceActive()) {
+            return;
+        }
+
+        // Cross-Selling wird oft per AJAX-Route geladen (kein CmsPageLoadedEvent). Hier werden die
+        // Produkte aller Cross-Selling-Gruppen mit der Extension angereichert.
+        foreach ($event->getCrossSellings() as $crossSelling) {
+            foreach ($crossSelling->getProducts() as $product) {
+                $this->enrichProduct($product);
+            }
+        }
+    }
+
+    public function onCustomerWishlistResult(CustomerWishlistProductListingResultEvent $event): void
+    {
+        if (!$this->configService->isDualPriceActive()) {
+            return;
+        }
+
+        foreach ($event->getResult()->getEntities() as $product) {
+            $this->enrichProduct($product);
+        }
+    }
+
+    public function onGuestWishlistLoaded(GuestWishlistPageletLoadedEvent $event): void
+    {
+        if (!$this->configService->isDualPriceActive()) {
+            return;
+        }
+
+        foreach ($event->getPagelet()->getSearchResult()->getProducts() as $product) {
+            $this->enrichProduct($product);
+        }
+    }
+
+    public function onCmsPageLoaded(CmsPageLoadedEvent $event): void
+    {
+        if (!$this->configService->isDualPriceActive()) {
+            return;
+        }
+
+        $cmsPage = $event->getResult()->first();
+        if ($cmsPage === null) {
+            return;
+        }
+
+        // Rekursive CMS-Block-Traversierung: Section → Block → Slot → Data. Pro Slot-Daten-Objekt
+        // werden drei Quellen abgegriffen: getProduct() (Einzel-Produkt-Box), getProducts() (Cross-
+        // Selling/Cluster) und getListing() (Listing-Element). Andere Strukturen werden ignoriert.
+        foreach ($cmsPage->getSections() ?? [] as $section) {
+            foreach ($section->getBlocks() ?? [] as $block) {
+                foreach ($block->getSlots() ?? [] as $slot) {
+                    $data = $slot->getData();
+                    if (!$data) {
+                        continue;
+                    }
+
+                    if (method_exists($data, 'getProduct') && $data->getProduct() instanceof ProductEntity) {
+                        $this->enrichProduct($data->getProduct());
+                    }
+
+                    if (method_exists($data, 'getProducts')) {
+                        foreach ($data->getProducts()?->getElements() ?? [] as $product) {
+                            if ($product instanceof ProductEntity) {
+                                $this->enrichProduct($product);
+                            }
+                        }
+                    }
+
+                    if (method_exists($data, 'getListing')) {
+                        foreach ($data->getListing()?->getElements() ?? [] as $product) {
+                            if ($product instanceof ProductEntity) {
+                                $this->enrichProduct($product);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private function enrichProduct(ProductEntity $product): void
+    {
+        $categories = $product->getCategories();
+        $enabled = false;
+
+        if ($categories !== null) {
+            foreach ($categories as $category) {
+                if ($this->categoryHelper->isCategoryEntityDualPriceActive($category)) {
+                    $enabled = true;
+                    break;
+                }
+            }
+        }
+
+        $product->addExtension('rc_dual_price_active', new ArrayStruct([
+            'enabled'   => $enabled,
+            'cssStyles' => $enabled ? $this->configService->getCssStyles() : '',
+        ]));
+    }
+}
