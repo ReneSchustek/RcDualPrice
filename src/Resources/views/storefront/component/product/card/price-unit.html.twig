@@ -5,13 +5,13 @@
     {{ parent() }}
 
     {# Steuersatz aus dem angewandten `calculatedTaxes` statt `product.tax.taxRate` (Basissatz) --
-       korrekt bei Steuerregeln/steuerfreien Kontexten. `real` ist hier in Scope (aeusserer Core-Block),
-       wird unten fuer real.unitPrice ohnehin genutzt. #}
+       korrekt bei Steuerregeln/steuerfreien Kontexten. `real` ist hier in Scope (äußerer Core-Block),
+       wird unten für real.unitPrice ohnehin genutzt. #}
     {% set dualTax = real.calculatedTaxes.first %}
     {% set dualTaxRate = dualTax ? dualTax.taxRate : null %}
 
-    {# `isListPrice`/`price` setzt der Core per {% set %} INNERHALB dieses Blocks und leakt nicht ueber
-       {{ parent() }} in den Override. Aus dem verfuegbaren `real` ableiten, sonst rendert der UVP nie. #}
+    {# `isListPrice`/`price` setzt der Core per {% set %} INNERHALB dieses Blocks und leakt nicht über
+       {{ parent() }} in den Override. Aus dem verfügbaren `real` ableiten, sonst rendert der UVP nie. #}
     {% set dualIsListPrice = real.listPrice and real.listPrice.percentage > 0 %}
 
     {% if product.extensions.rc_dual_price_active.enabled and dualTaxRate is not null and dualTaxRate != 0 %}

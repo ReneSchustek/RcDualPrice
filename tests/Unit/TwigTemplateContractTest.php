@@ -10,7 +10,7 @@ use PHPUnit\Framework\TestCase;
  * Nagelt die Ziel-Templates und Blocknamen der drei Storefront-Overrides fest.
  * Ein `sw_extends`-Block, den es im Ziel-Template nicht (mehr) gibt, wird von Twig
  * stillschweigend ignoriert -- die Zweitpreis-Ausgabe rendert dann nie, ohne dass
- * ein Test anschlaegt. Dieser Test schlaegt an, sobald Shopware einen der Blocknamen
+ * ein Test anschlägt. Dieser Test schlägt an, sobald Shopware einen der Blocknamen
  * umbenennt oder ein Override auf einen Phantom-Block gerichtet wird.
  */
 final class TwigTemplateContractTest extends TestCase

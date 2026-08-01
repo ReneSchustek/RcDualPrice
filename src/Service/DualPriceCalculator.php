@@ -9,11 +9,11 @@ namespace Ruhrcoder\RcDualPrice\Service;
  *
  * Zuvor lag diese Arithmetik un-getestet und un-gerundet inline im Twig
  * (rc-dual-price-label.html.twig). Als Service ist sie testbar und liefert einen deterministisch
- * gerundeten Wert (vermeidet die sub-Cent-Drift der frueheren Roh-Division/-Multiplikation).
+ * gerundeten Wert (vermeidet die sub-Cent-Drift der früheren Roh-Division/-Multiplikation).
  *
  * Grenzen bewusst eng: nur die echten States 'gross'/'net' erzeugen einen Zweitpreis. 'tax-free'
- * (und jeder unbekannte State) sowie ein Steuersatz von 0/null geben `null` zurueck — dann darf
- * nichts gerendert werden, sonst wuerde auf einen steuerfreien Preis ein Brutto-Wert fabriziert.
+ * (und jeder unbekannte State) sowie ein Steuersatz von 0/null geben `null` zurück — dann darf
+ * nichts gerendert werden, sonst würde auf einen steuerfreien Preis ein Brutto-Wert fabriziert.
  */
 final class DualPriceCalculator
 {

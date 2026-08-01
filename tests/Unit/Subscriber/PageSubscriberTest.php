@@ -227,7 +227,7 @@ final class PageSubscriberTest extends TestCase
         $event = $this->createMock(CmsPageLoadedEvent::class);
         $event->method('getResult')->willReturn($collection);
 
-        // Darf nicht crashen, kein Enrichment moeglich.
+        // Darf nicht crashen, kein Enrichment möglich.
         $this->subscriber->onCmsPageLoaded($event);
         $this->assertCount(0, $collection);
     }

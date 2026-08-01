@@ -18,8 +18,8 @@ use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetColl
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetEntity;
 
 /**
- * Unit-Tests fuer den Lifecycle-Installer. Verifiziert Idempotenz, Upsert-Payload,
- * Uninstall-Verhalten und strukturierte Logs — alles, was an der DAL-Boundary haengt.
+ * Unit-Tests für den Lifecycle-Installer. Verifiziert Idempotenz, Upsert-Payload,
+ * Uninstall-Verhalten und strukturierte Logs — alles, was an der DAL-Boundary hängt.
  */
 #[CoversClass(CustomFieldInstaller::class)]
 final class CustomFieldInstallerTest extends TestCase
@@ -158,7 +158,7 @@ final class CustomFieldInstallerTest extends TestCase
         $this->mockSearchEmpty();
         $this->repository->expects(self::once())->method('upsert');
 
-        // Smoke-Test: Konstruktion ohne Logger-Argument wirft nicht und fuehrt zu keinem Fehler.
+        // Smoke-Test: Konstruktion ohne Logger-Argument wirft nicht und führt zu keinem Fehler.
         (new CustomFieldInstaller($this->repository))->install($this->context);
         self::assertInstanceOf(NullLogger::class, new NullLogger());
     }

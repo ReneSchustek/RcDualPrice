@@ -29,10 +29,10 @@ final class CriteriaSubscriber implements EventSubscriberInterface
             ProductSearchCriteriaEvent::class             => 'onCriteria',
             ProductSuggestCriteriaEvent::class            => 'onCriteria',
             ProductPageCriteriaEvent::class               => 'onCriteria',
-            // Cross-Selling ("Kunden kauften auch") laedt seine Produkte ueber eigene Criteria-Events.
+            // Cross-Selling ("Kunden kauften auch") lädt seine Produkte über eigene Criteria-Events.
             ProductCrossSellingStreamCriteriaEvent::class => 'onCriteria',
             ProductCrossSellingIdsCriteriaEvent::class    => 'onCriteria',
-            // Wunschliste (angemeldet + Gast-Pagelet) laedt ihre Produkte ueber eigene Criteria-Events.
+            // Wunschliste (angemeldet + Gast-Pagelet) lädt ihre Produkte über eigene Criteria-Events.
             WishListPageProductCriteriaEvent::class       => 'onCriteria',
             GuestWishListPageletProductCriteriaEvent::class => 'onCriteria',
         ];
@@ -46,8 +46,8 @@ final class CriteriaSubscriber implements EventSubscriberInterface
             return;
         }
 
-        // Das Autocomplete-Dropdown (Suggest) rendert den Zweitpreis nicht — die zusaetzliche
-        // categories-Association waere dort reine Last pro Tastendruck.
+        // Das Autocomplete-Dropdown (Suggest) rendert den Zweitpreis nicht — die zusätzliche
+        // categories-Association wäre dort reine Last pro Tastendruck.
         if ($event instanceof ProductSuggestCriteriaEvent) {
             return;
         }

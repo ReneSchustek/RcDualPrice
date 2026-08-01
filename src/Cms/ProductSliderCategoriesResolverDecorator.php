@@ -15,10 +15,10 @@ use Shopware\Core\Content\Product\ProductDefinition;
 /**
  * Dekoriert den Core-Resolver des CMS-Produkt-Sliders.
  *
- * Der Slider laedt seine Produkte ueber prozessor-interne Criteria und dispatcht — anders als
+ * Der Slider lädt seine Produkte über prozessor-interne Criteria und dispatcht — anders als
  * Listing/Suche/Cross-Selling — KEIN Criteria-Event. Ohne die `categories`-Association fehlt den
  * Slider-Produkten die Grundlage, auf der der PageSubscriber den Zweitpreis-Zweig entscheidet.
- * Der Decorator ergaenzt die Association nachtraeglich auf den Produkt-Criteria.
+ * Der Decorator ergänzt die Association nachträglich auf den Produkt-Criteria.
  */
 final class ProductSliderCategoriesResolverDecorator implements CmsElementResolverInterface
 {

@@ -22,7 +22,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  * Anders als die Runtime-Extension auf dem Produkt (PageSubscriber) reist der Payload in den
  * Warenkorb, den Checkout und die Bestellung. Erst dadurch kann das Line-Item-Template den
  * Zweitpreis auf genau die Produkte begrenzen, deren Kategorie den Zweitpreis aktiviert hat —
- * statt ihn bei global aktivem Plugin fuer alle Positionen zu zeigen.
+ * statt ihn bei global aktivem Plugin für alle Positionen zu zeigen.
  */
 final class DualPriceCartCollector implements CartDataCollectorInterface
 {
@@ -64,8 +64,8 @@ final class DualPriceCartCollector implements CartDataCollectorInterface
     }
 
     /**
-     * Laedt die Kategorie-Flags nur fuer noch nicht aufgeloeste Produkte — memoized ueber die
-     * CartDataCollection, damit wiederholte Cart-Berechnungen keine erneute Query ausloesen.
+     * Lädt die Kategorie-Flags nur für noch nicht aufgelöste Produkte — memoized über die
+     * CartDataCollection, damit wiederholte Cart-Berechnungen keine erneute Query auslösen.
      *
      * @param LineItem[] $lineItems
      */
