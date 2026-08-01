@@ -20,7 +20,7 @@ All notable changes are documented in this file.
 
 - **The list-price (RRP) strike-through second price now actually renders:** On the product detail page and in product cards, the Shopware core set `isListPrice`/`listPrice` via `{% set %}` inside the overridden block — those variables are not visible in the overriding block after `{{ parent() }}` (`is defined` = false), so the struck-through list-price second price was **never** rendered. It is now derived in the child block from the available price object (`price`/`real`).
 - **Tax rate taken from the actually applied value instead of the base rate:** Detail page, cards and tier-price rows used `product.tax.taxRate` (the tax group's base rate), which is wrong under country-dependent tax rules and in tax-free contexts. It now reads the actually applied rate from `calculatedPrice.calculatedTaxes` — as the already-correct cart path does — per tier for staggered prices.
-- **Net/groß conversion rounded deterministically:** The conversion lived untested and unrounded inline in Twig (rounding only implicit at display) → possible sub-cent drift. It now lives in the tested PHP service `DualPriceCalculator` (rounded to 2 decimals); for tax-free/unknown tax states and rate 0 it deliberately yields "nothing".
+- **Net/gross conversion rounded deterministically:** The conversion lived untested and unrounded inline in Twig (rounding only implicit at display) → possible sub-cent drift. It now lives in the tested PHP service `DualPriceCalculator` (rounded to 2 decimals); for tax-free/unknown tax states and rate 0 it deliberately yields "nothing".
 
 ### Changed
 
@@ -32,7 +32,7 @@ All notable changes are documented in this file.
 
 ### Fixed
 
-- **Tax-free contexts:** No secondary price is fabricated for `tax-free` any more (previously a groß value was wrongly added on top of a tax-free price) — only the real tax states `gross`/`net` produce a counter price.
+- **Tax-free contexts:** No secondary price is fabricated for `tax-free` any more (previously a gross value was wrongly added on top of a tax-free price) — only the real tax states `gross`/`net` produce a counter price.
 - **Currency symbol in the cart:** With a missing ISO code the secondary price now falls back to the context currency of the core `currency` filter (previously `|default` turned `null` into an empty string, which could yield a missing/wrong currency symbol).
 
 ### Changed
@@ -68,10 +68,10 @@ All notable changes are documented in this file.
 
 ### Feature set
 
-- **Net/groß counter price** is automatically shown alongside the main price. Gross-priced shops display the net price, net-priced shops display the groß price. Calculation uses the configured tax rate.
+- **Net/gross counter price** is automatically shown alongside the main price. Gross-priced shops display the net price, net-priced shops display the groß price. Calculation uses the configured tax rate.
 - **Activation per category** via a custom field (`Dual Price active`). All products in an activated category receive the display.
 - **Display contexts:** product detail page (including strikethrough price for RRP), tier prices (additional column), listing boxes (standard, image, minimal, wishlist), CMS pages (slider, boxes, listings, cross-selling), search results, cart (off-canvas + page), checkout confirmation, order history.
-- **Edge cases:** strikethrough net/groß RRP price, „from" prefix for variants with different prices, no display at 0 % tax rate (net and groß are identical).
+- **Edge cases:** strikethrough net/gross RRP price, „from" prefix for variants with different prices, no display at 0 % tax rate (net and gross are identical).
 - **Plugin settings:** text colour (colour picker), font size (small/normal/large), font weight (normal/bold), top spacing in pixels. Master toggle „Plugin active".
 - **Cart and checkout:** counter price appears for all products regardless of category (category assignment is not available in the cart context).
 

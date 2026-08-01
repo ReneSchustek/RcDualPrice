@@ -82,7 +82,7 @@ final class DualPriceCartCollectorTest extends TestCase
     {
         $this->givenPluginActive(true);
         $this->givenProducts(['active-product' => true]);
-        // Zwei collect-Läufe (wie bei wiederholter Cart-Berechnung) duerfen nur EINE Query auslösen.
+        // Zwei collect-Läufe (wie bei wiederholter Cart-Berechnung) dürfen nur EINE Query auslösen.
         $this->productRepository->expects(self::once())->method('search');
 
         $cart = $this->cartWithProducts(['active-product']);
