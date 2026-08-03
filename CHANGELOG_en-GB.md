@@ -2,6 +2,18 @@
 
 All notable changes are documented in this file.
 
+## [1.4.1] - 2026-08-03 — Lifecycle fails loudly instead of silently
+
+> **Deployment:** `php bin/console plugin:update RcDualPrice && php bin/console cache:clear`. No schema break, no migration.
+
+### Fixed
+
+- **A missing container during installation ran into a misleading PHP error.** The guard against it had no effect: it compared the container to `null`, but the property is typed and has no default — merely accessing it aborted, with a message pointing into Symfony's bundle class instead of at the lifecycle call order. The check now runs before that access and names the actual cause.
+
+### Other
+
+- The lifecycle (install, update, uninstall) and the product detail page are now covered by tests. Both ran unverified before: the lifecycle because it only executes once, the product detail page even though it is the plugin's main surface.
+
 ## [1.4.0] - 2026-07-21 — Category-accurate in the cart plus second price on sliders and cross-selling
 
 > **Deployment:** `php bin/console plugin:update RcDualPrice && php bin/console cache:clear`. No schema break, no migration.

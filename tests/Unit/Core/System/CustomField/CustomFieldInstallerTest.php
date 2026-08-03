@@ -36,7 +36,7 @@ final class CustomFieldInstallerTest extends TestCase
         $this->context = Context::createDefaultContext();
     }
 
-    public function testInstallUpsertsCustomFieldSetWennNichtVorhanden(): void
+    public function testInstallUpsertsCustomFieldSetWhenMissing(): void
     {
         $this->mockSearchEmpty();
 

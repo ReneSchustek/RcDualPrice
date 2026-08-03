@@ -2,6 +2,18 @@
 
 Alle nennenswerten Änderungen werden in dieser Datei dokumentiert.
 
+## [1.4.1] - 2026-08-03 — Lebenszyklus scheitert laut statt still
+
+> **Deployment:** `php bin/console plugin:update RcDualPrice && php bin/console cache:clear`. Kein Schema-Break, keine Migration.
+
+### Behoben
+
+- **Ein fehlender Container beim Installieren lief in einen irreführenden PHP-Fehler.** Die Absicherung dagegen war wirkungslos: Sie fragte den Container auf `null` ab, doch die Eigenschaft ist typisiert und ohne Vorbelegung — schon der Zugriff darauf brach ab, mit einer Meldung, die in Symfonys Bundle-Klasse zeigte statt auf die Aufrufreihenfolge. Die Prüfung greift jetzt vorher und nennt die Ursache beim Namen.
+
+### Sonstiges
+
+- Der Lebenszyklus (Installieren, Aktualisieren, Deinstallieren) und die Produktdetailseite sind jetzt durch Tests abgedeckt. Beides lief zuvor ungeprüft: der Lebenszyklus, weil er nur einmal ausgeführt wird, die Produktdetailseite, obwohl sie die Hauptfläche des Plugins ist.
+
 ## [1.4.0] - 2026-07-21 — Warenkorb kategoriegenau + Zweitpreis auf Slidern und Cross-Selling
 
 > **Deployment:** `php bin/console plugin:update RcDualPrice && php bin/console cache:clear`. Kein Schema-Break, keine Migration.

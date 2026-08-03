@@ -37,6 +37,8 @@ use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Storefront\Page\Product\ProductPage;
+use Shopware\Storefront\Page\Product\ProductPageLoadedEvent;
 use Shopware\Storefront\Pagelet\Wishlist\GuestWishlistPageletLoadedEvent;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -323,5 +325,113 @@ final class PageSubscriberTest extends TestCase
         $event->method('getResult')->willReturn($collection);
 
         return $event;
+    }
+
+    /**
+     * Was: Die Produktseite selbst.
+     * Warum: **Die Hauptoberfläche des Plugins — und sie war ungetestet.** Der Zweitpreis steht
+     *        auf jeder Produktseite; fällt die Anreicherung dort aus, sieht der Kunde nur einen
+     *        Preis, und niemandem fällt es auf, weil die Seite vollständig aussieht.
+     * Erwartet: Das Produkt trägt die Erweiterung mit `enabled = true`.
+     */
+    public function testOnProductPageLoadedEnrichesTheProduct(): void
+    {
+        $this->systemConfig->method('get')->willReturnCallback(
+            static fn (string $key): mixed => str_ends_with($key, '.active') ? true : null,
+        );
+
+        $product = $this->buildActiveSalesChannelProduct('produkt-1');
+
+        $seite = new ProductPage();
+        $seite->setProduct($product);
+
+        $this->subscriber->onProductPageLoaded(new ProductPageLoadedEvent(
+            $seite,
+            $this->createMock(SalesChannelContext::class),
+            new Request(),
+        ));
+
+        $erweiterung = $product->getExtension('rc_dual_price_active');
+        self::assertInstanceOf(ArrayStruct::class, $erweiterung);
+        self::assertTrue($erweiterung->get('enabled'));
+    }
+
+    /**
+     * Was: Produktseite bei abgeschaltetem Plugin.
+     * Warum: Abschalten muss überall wirken. Bliebe die Erweiterung stehen, zeigte die Vorlage
+     *        weiter zwei Preise, obwohl der Schalter aus ist.
+     * Erwartet: keine Erweiterung am Produkt.
+     */
+    public function testOnProductPageLoadedSkipsWhenPluginInactive(): void
+    {
+        $this->systemConfig->method('get')->willReturn(false);
+
+        $product = $this->buildActiveSalesChannelProduct('produkt-2');
+
+        $seite = new ProductPage();
+        $seite->setProduct($product);
+
+        $this->subscriber->onProductPageLoaded(new ProductPageLoadedEvent(
+            $seite,
+            $this->createMock(SalesChannelContext::class),
+            new Request(),
+        ));
+
+        self::assertNull($product->getExtension('rc_dual_price_active'));
+    }
+
+    /**
+     * Was: Cross-Selling bei abgeschaltetem Plugin.
+     * Warum: Der aktive Fall war geprüft, der abgeschaltete nicht — und genau dort entscheidet
+     *        sich, ob der Schalter überhaupt etwas bewirkt.
+     * Erwartet: keine Erweiterung.
+     */
+    public function testOnCrossSellingsLoadedSkipsWhenPluginInactive(): void
+    {
+        $this->systemConfig->method('get')->willReturn(false);
+
+        $product = new ProductEntity();
+        $product->setId('cross-selling-aus');
+
+        $element = new CrossSellingElement();
+        $element->setProducts(new ProductCollection([$product]));
+
+        $this->subscriber->onCrossSellingsLoaded(new ProductCrossSellingsLoadedEvent(
+            new CrossSellingElementCollection([$element]),
+            $this->createMock(SalesChannelContext::class),
+        ));
+
+        self::assertNull($product->getExtension('rc_dual_price_active'));
+    }
+
+    /**
+     * Was: Die Wunschliste eines Kunden bei abgeschaltetem Plugin.
+     * Warum: wie oben — der Schalter muss auf jeder Oberfläche greifen.
+     * Erwartet: keine Erweiterung.
+     */
+    public function testOnCustomerWishlistResultSkipsWhenPluginInactive(): void
+    {
+        $this->systemConfig->method('get')->willReturn(false);
+
+        $product = new ProductEntity();
+        $product->setId('wunschliste-aus');
+
+        /** @var EntitySearchResult<ProductCollection> $ergebnis */
+        $ergebnis = new EntitySearchResult(
+            'product',
+            1,
+            new ProductCollection([$product]),
+            null,
+            new Criteria(),
+            Context::createDefaultContext(),
+        );
+
+        $this->subscriber->onCustomerWishlistResult(new CustomerWishlistProductListingResultEvent(
+            new Request(),
+            $ergebnis,
+            $this->createMock(SalesChannelContext::class),
+        ));
+
+        self::assertNull($product->getExtension('rc_dual_price_active'));
     }
 }
