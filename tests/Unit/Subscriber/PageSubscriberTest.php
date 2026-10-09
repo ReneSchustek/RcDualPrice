@@ -151,7 +151,7 @@ final class PageSubscriberTest extends TestCase
         $product->setCategories(new CategoryCollection([$category]));
 
         $result = $this->createMock(ProductListingResult::class);
-        $result->method('getElements')->willReturn(['prod-1' => $product]);
+        $result->method('getEntities')->willReturn(new ProductCollection([$product]));
 
         $event = $this->createMock(ProductListingResultEvent::class);
         $event->method('getResult')->willReturn($result);
@@ -177,7 +177,7 @@ final class PageSubscriberTest extends TestCase
         $product->setCategories(new CategoryCollection([$category]));
 
         $result = $this->createMock(ProductListingResult::class);
-        $result->method('getElements')->willReturn(['prod-1' => $product]);
+        $result->method('getEntities')->willReturn(new ProductCollection([$product]));
 
         $event = $this->createMock(ProductListingResultEvent::class);
         $event->method('getResult')->willReturn($result);
@@ -197,7 +197,7 @@ final class PageSubscriberTest extends TestCase
         $product->setId('prod-1');
 
         $result = $this->createMock(ProductListingResult::class);
-        $result->method('getElements')->willReturn(['prod-1' => $product]);
+        $result->method('getEntities')->willReturn(new ProductCollection([$product]));
 
         $event = $this->createMock(ProductListingResultEvent::class);
         $event->method('getResult')->willReturn($result);

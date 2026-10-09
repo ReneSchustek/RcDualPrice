@@ -18,6 +18,12 @@ final class CustomFieldInstaller
     final public const FIELD_NAME = 'rc_dual_price_active';
     private const LOG_CONTEXT = 'ruhrcoder_dual_price.custom_field_installer';
 
+    /** Derselbe Name wie unter Erweiterungen (composer.json, extra.label). */
+    private const SET_LABEL = [
+        'en-GB' => 'Dual Price (Net/Gross)',
+        'de-DE' => 'Zweitpreis (Netto/Brutto)',
+    ];
+
     /**
      * @param EntityRepository<CustomFieldSetCollection> $customFieldSetRepository
      */
@@ -31,10 +37,16 @@ final class CustomFieldInstaller
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', self::SET_NAME));
-        $existing = $this->customFieldSetRepository->search($criteria, $context)->first();
+        $existing = $this->customFieldSetRepository->search($criteria, $context)->getEntities()->first();
 
         if ($existing !== null) {
-            $this->logger->info('RcDualPrice: CustomFieldSet bereits vorhanden, Install ist No-op.', [
+            // Nur die Beschriftung nachziehen: Bestandsshops behielten sonst den Namen,
+            // unter dem das Set einmal angelegt wurde.
+            $this->customFieldSetRepository->upsert([
+                ['id' => $existing->getId(), 'config' => ['label' => self::SET_LABEL]],
+            ], $context);
+
+            $this->logger->info('RcDualPrice: CustomFieldSet bereits vorhanden, Beschriftung abgeglichen.', [
                 'context' => self::LOG_CONTEXT,
                 'setName' => self::SET_NAME,
             ]);
@@ -47,10 +59,7 @@ final class CustomFieldInstaller
                 [
                     'name' => self::SET_NAME,
                     'config' => [
-                        'label' => [
-                            'en-GB' => 'Dual Price Settings',
-                            'de-DE' => 'Zweitpreis Einstellungen',
-                        ],
+                        'label' => self::SET_LABEL,
                     ],
                     'customFields' => [
                         [
@@ -97,7 +106,7 @@ final class CustomFieldInstaller
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', self::SET_NAME));
-        $set = $this->customFieldSetRepository->search($criteria, $context)->first();
+        $set = $this->customFieldSetRepository->search($criteria, $context)->getEntities()->first();
 
         if ($set === null) {
             $this->logger->info('RcDualPrice: CustomFieldSet bereits abwesend, Uninstall ist No-op.', [

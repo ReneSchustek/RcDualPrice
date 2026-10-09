@@ -2,6 +2,18 @@
 
 Alle nennenswerten Änderungen werden in dieser Datei dokumentiert.
 
+## [1.4.3] - 2026-10-09 — Die Zusatzfelder heißen wie die Erweiterung
+
+### Geändert
+
+- Unter „Zusatzfelder“ an der Kategorie stand „Zweitpreis Einstellungen“. Dort steht jetzt „Zweitpreis (Netto/Brutto)“ — derselbe Name wie unter Erweiterungen. Bisher behielt ein bestehendes Set beim Update seinen alten Namen, weil die Installation bei vorhandenem Set nichts tat; jetzt wird die Beschriftung dabei abgeglichen.
+
+## [1.4.2] - 2026-08-10 — Vorbereitet auf die nächste Shopware-Hauptversion
+
+### Geändert
+
+- **Vorbereitung auf die nächste Shopware-Hauptversion.** Der Zugriff auf Suchergebnisse folgt der Schreibweise, die Shopware 6.8 verlangt. Am Verhalten ändert sich nichts.
+
 ## [1.4.1] - 2026-08-03 — Lebenszyklus scheitert laut statt still
 
 > **Deployment:** `php bin/console plugin:update RcDualPrice && php bin/console cache:clear`. Kein Schema-Break, keine Migration.

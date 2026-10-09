@@ -7,6 +7,7 @@ namespace Ruhrcoder\RcDualPrice\Subscriber;
 use Ruhrcoder\RcDualPrice\Service\CategoryDualPriceHelper;
 use Ruhrcoder\RcDualPrice\Service\ConfigService;
 use Shopware\Core\Checkout\Customer\Event\CustomerWishlistProductListingResultEvent;
+use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Cms\Events\CmsPageLoadedEvent;
 use Shopware\Core\Content\Product\Events\ProductCrossSellingsLoadedEvent;
 use Shopware\Core\Content\Product\Events\ProductListingResultEvent;
@@ -51,7 +52,7 @@ final class PageSubscriber implements EventSubscriberInterface
             return;
         }
 
-        foreach ($event->getResult()->getElements() as $product) {
+        foreach ($event->getResult()->getEntities() as $product) {
             $this->enrichProduct($product);
         }
     }
@@ -104,37 +105,56 @@ final class PageSubscriber implements EventSubscriberInterface
             return;
         }
 
-        // Rekursive CMS-Block-Traversierung: Section → Block → Slot → Data. Pro Slot-Daten-Objekt
-        // werden drei Quellen abgegriffen: getProduct() (Einzel-Produkt-Box), getProducts() (Cross-
-        // Selling/Cluster) und getListing() (Listing-Element). Andere Strukturen werden ignoriert.
+        // CMS-Aufbau durchlaufen: Section → Block → Slot. Was an einem Slot hängt, entscheidet
+        // `enrichSlot()`.
         foreach ($cmsPage->getSections() ?? [] as $section) {
             foreach ($section->getBlocks() ?? [] as $block) {
                 foreach ($block->getSlots() ?? [] as $slot) {
-                    $data = $slot->getData();
-                    if (!$data) {
-                        continue;
-                    }
-
-                    if (method_exists($data, 'getProduct') && $data->getProduct() instanceof ProductEntity) {
-                        $this->enrichProduct($data->getProduct());
-                    }
-
-                    if (method_exists($data, 'getProducts')) {
-                        foreach ($data->getProducts()?->getElements() ?? [] as $product) {
-                            if ($product instanceof ProductEntity) {
-                                $this->enrichProduct($product);
-                            }
-                        }
-                    }
-
-                    if (method_exists($data, 'getListing')) {
-                        foreach ($data->getListing()?->getElements() ?? [] as $product) {
-                            if ($product instanceof ProductEntity) {
-                                $this->enrichProduct($product);
-                            }
-                        }
-                    }
+                    $this->enrichSlot($slot);
                 }
+            }
+        }
+    }
+
+    /**
+     * Greift die drei Quellen ab, unter denen ein Slot Produkte führen kann: `getProduct()`
+     * (Einzel-Produkt-Box), `getProducts()` (Cross-Selling/Cluster) und `getListing()`
+     * (Listing-Element). Andere Strukturen werden übergangen.
+     *
+     * Eigene Methode seit dem 2026-08-19: Zusammen mit der Traversierung lag die Verzweigungszahl
+     * von `onCmsPageLoaded()` bei 20, die Regel zieht die Grenze bei 15.
+     */
+    private function enrichSlot(CmsSlotEntity $slot): void
+    {
+        $data = $slot->getData();
+        if (!$data) {
+            return;
+        }
+
+        if (method_exists($data, 'getProduct') && $data->getProduct() instanceof ProductEntity) {
+            $this->enrichProduct($data->getProduct());
+        }
+
+        if (method_exists($data, 'getProducts')) {
+            $this->enrichAll($data->getProducts()?->getElements() ?? []);
+        }
+
+        if (method_exists($data, 'getListing')) {
+            $this->enrichAll($data->getListing()?->getElements() ?? []);
+        }
+    }
+
+    /**
+     * Reichert alles an, was ein Produkt ist. Der Typvergleich bleibt: In einer Slot-Sammlung
+     * steht nicht zwingend nur Ware.
+     *
+     * @param array<int|string, mixed> $entities
+     */
+    private function enrichAll(array $entities): void
+    {
+        foreach ($entities as $entity) {
+            if ($entity instanceof ProductEntity) {
+                $this->enrichProduct($entity);
             }
         }
     }

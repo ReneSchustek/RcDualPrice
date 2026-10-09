@@ -47,8 +47,8 @@ final class CustomFieldInstallerTest extends TestCase
                     self::assertCount(1, $payload);
                     $set = $payload[0];
                     self::assertSame(CustomFieldInstaller::SET_NAME, $set['name']);
-                    self::assertSame('Zweitpreis Einstellungen', $set['config']['label']['de-DE']);
-                    self::assertSame('Dual Price Settings', $set['config']['label']['en-GB']);
+                    self::assertSame('Zweitpreis (Netto/Brutto)', $set['config']['label']['de-DE']);
+                    self::assertSame('Dual Price (Net/Gross)', $set['config']['label']['en-GB']);
                     self::assertCount(1, $set['customFields']);
                     self::assertSame(CustomFieldInstaller::FIELD_NAME, $set['customFields'][0]['name']);
                     self::assertSame('bool', $set['customFields'][0]['type']);
@@ -66,15 +66,23 @@ final class CustomFieldInstallerTest extends TestCase
         (new CustomFieldInstaller($this->repository, $this->logger))->install($this->context);
     }
 
-    public function testInstallIstIdempotentWennSetExistiert(): void
+    public function testInstallGleichtNurDieBeschriftungAbWennSetExistiert(): void
     {
-        $this->mockSearchWithEntity();
+        $entity = $this->mockSearchWithEntity();
 
-        $this->repository->expects(self::never())->method('upsert');
+        $this->repository->expects(self::once())
+            ->method('upsert')
+            ->with(
+                [[
+                    'id' => $entity->getId(),
+                    'config' => ['label' => ['en-GB' => 'Dual Price (Net/Gross)', 'de-DE' => 'Zweitpreis (Netto/Brutto)']],
+                ]],
+                $this->context,
+            );
 
         $this->logger->expects(self::once())
             ->method('info')
-            ->with('RcDualPrice: CustomFieldSet bereits vorhanden, Install ist No-op.', self::anything());
+            ->with('RcDualPrice: CustomFieldSet bereits vorhanden, Beschriftung abgeglichen.', self::anything());
 
         (new CustomFieldInstaller($this->repository, $this->logger))->install($this->context);
     }
@@ -166,7 +174,7 @@ final class CustomFieldInstallerTest extends TestCase
     private function mockSearchEmpty(): void
     {
         $result = $this->createMock(EntitySearchResult::class);
-        $result->method('first')->willReturn(null);
+        $result->method('getEntities')->willReturn(new CustomFieldSetCollection());
         $this->repository->method('search')
             ->with(self::isInstanceOf(Criteria::class), $this->context)
             ->willReturn($result);
@@ -177,7 +185,7 @@ final class CustomFieldInstallerTest extends TestCase
         $entity = new CustomFieldSetEntity();
         $entity->setId('set-id-abc');
         $result = $this->createMock(EntitySearchResult::class);
-        $result->method('first')->willReturn($entity);
+        $result->method('getEntities')->willReturn(new CustomFieldSetCollection([$entity]));
         $this->repository->method('search')
             ->with(self::isInstanceOf(Criteria::class), $this->context)
             ->willReturn($result);
