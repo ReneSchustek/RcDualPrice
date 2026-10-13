@@ -16,17 +16,8 @@
 
     {% if product.extensions.rc_dual_price_active.enabled and dualTaxRate is not null and dualTaxRate != 0 %}
         <div class="rc-dual-price" style="{{ product.extensions.rc_dual_price_active.cssStyles }}">
-            {# UVP-Zweitpreis (durchgestrichen) wenn Listenpreis vorhanden #}
-            {% if dualIsListPrice and not (displayFrom is defined and displayFrom) and not (displayFromVariants is defined and displayFromVariants) %}
-                <s class="rc-dual-price-list-price">
-                    {% sw_include '@RcDualPrice/storefront/component/rc-dual-price-label.html.twig' with {
-                        unitPrice: real.listPrice.price,
-                        taxRate: dualTaxRate,
-                        taxState: context.taxState,
-                        currencyIsoCode: currencyIsoCode
-                    } only %}
-                </s>
-            {% endif %}
+            {# Den Streichpreis gibt es nur ohne „ab“-Preis; er steht im Aufruf unten (BRIEF09). #}
+            {% set dualShowListPrice = dualIsListPrice and not (displayFrom is defined and displayFrom) and not (displayFromVariants is defined and displayFromVariants) %}
 
             {# "Ab"-Prefix bei Staffel-/Variantenpreisen #}
             {% if (displayFrom is defined and displayFrom) or (displayParent is defined and displayParent and hasDifferentPrice is defined and hasDifferentPrice and hasRange is defined and hasRange and totalVariants is defined and totalVariants|length > 1) %}
@@ -36,6 +27,7 @@
             {# Zweitpreis für den aktuellen Verkaufspreis #}
             {% sw_include '@RcDualPrice/storefront/component/rc-dual-price-label.html.twig' with {
                 unitPrice: real.unitPrice,
+                listUnitPrice: dualShowListPrice ? real.listPrice.price : null,
                 taxRate: dualTaxRate,
                 taxState: context.taxState,
                 currencyIsoCode: currencyIsoCode

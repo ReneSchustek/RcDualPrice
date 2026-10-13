@@ -18,21 +18,11 @@
 
     {% if product.extensions.rc_dual_price_active.enabled and product.calculatedPrice and dualTaxRate is not null and dualTaxRate != 0 %}
         <div class="rc-dual-price" style="{{ product.extensions.rc_dual_price_active.cssStyles }}">
-            {# UVP-Zweitpreis (durchgestrichen) wenn Listenpreis vorhanden #}
-            {% if dualIsListPrice %}
-                <s class="rc-dual-price-list-price">
-                    {% sw_include '@RcDualPrice/storefront/component/rc-dual-price-label.html.twig' with {
-                        unitPrice: price.listPrice.price,
-                        taxRate: dualTaxRate,
-                        taxState: context.taxState,
-                        currencyIsoCode: currencyIsoCode
-                    } only %}
-                </s>
-            {% endif %}
-
-            {# Zweitpreis für den aktuellen Verkaufspreis #}
+            {# Zweitpreis zum Verkaufspreis; mit Listenpreis steht der alte Betrag durchgestrichen davor,
+               unter einer Beschriftung (BRIEF09). #}
             {% sw_include '@RcDualPrice/storefront/component/rc-dual-price-label.html.twig' with {
                 unitPrice: price.unitPrice,
+                listUnitPrice: dualIsListPrice ? price.listPrice.price : null,
                 taxRate: dualTaxRate,
                 taxState: context.taxState,
                 currencyIsoCode: currencyIsoCode

@@ -2,6 +2,17 @@
 
 Alle nennenswerten Änderungen werden in dieser Datei dokumentiert.
 
+## [1.4.4] - 2026-10-13 — „Netto“ beim Streichpreis nur einmal
+
+> **Deployment:** `php bin/console plugin:update RcDualPrice`, `php bin/console cache:clear`.
+
+### Behoben
+
+- **Streichpreis mit doppelter Beschriftung** (BRIEF09): Bei Artikeln mit Listenpreis stand auf Produktseite und
+  Produktkarte „~~Netto: 19,60 €~~ Netto: 17,64 €“, auf Live wie auf den Klonen. Jetzt steht die Beschriftung
+  einmal und nur der alte Betrag ist durchgestrichen: „Netto: ~~19,60 €~~ 17,64 €“. Gilt im alten Theme und im
+  Theme 2027, brutto wie netto angezeigt.
+
 ## [1.4.3] - 2026-10-09 — Die Zusatzfelder heißen wie die Erweiterung
 
 ### Geändert

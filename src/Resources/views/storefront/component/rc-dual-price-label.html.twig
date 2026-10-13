@@ -7,6 +7,10 @@
         taxState        – string      – 'gross' oder 'net'
         currencyIsoCode – string|null – ISO-Code der Währung (optional, für currency-Filter)
         hideLabel       – bool        – Wenn true, wird nur der Betrag ohne "Netto:"/"Brutto:" ausgegeben
+        listUnitPrice   – float|null  – Streichpreis (Listenpreis). Steht dann durchgestrichen zwischen
+                                        Beschriftung und Betrag: "Netto: <s>5,03 €</s> 4,19 €". Bis BRIEF09
+                                        riefen die Vorlagen das Partial zweimal auf, und "Netto" stand
+                                        zweimal da, einmal durchgestrichen.
 #}
 {#
     Nur die beiden echten Steuer-States 'gross'/'net' erzeugen einen Zweitpreis. 'tax-free' (und
@@ -19,10 +23,11 @@
    deterministisch gerundet (keine sub-Cent-Drift) und liefert null für tax-free/unbekannten State/Satz 0
    -> dann wird bewusst nichts gerendert (kein fabrizierter Brutto-Wert auf einen steuerfreien Preis). #}
 {% set dualPrice = rc_dual_price_convert(unitPrice, taxRate, taxState) %}
+{% set dualListPrice = listUnitPrice is defined and listUnitPrice is not null ? rc_dual_price_convert(listUnitPrice, taxRate, taxState) : null %}
 {% if dualPrice is not null %}
-    {% if taxState == 'gross' %}
-        {% if not (hideLabel|default(false)) %}{{ "rc-dual-price.labelNet"|trans }}: {% endif %}{{ dualPrice|currency(currencyIsoCode) }}
-    {% elseif taxState == 'net' %}
-        {% if not (hideLabel|default(false)) %}{{ "rc-dual-price.labelGross"|trans }}: {% endif %}{{ dualPrice|currency(currencyIsoCode) }}
+    {% if not (hideLabel|default(false)) %}
+        {% if taxState == 'gross' %}{{ "rc-dual-price.labelNet"|trans }}: {% elseif taxState == 'net' %}{{ "rc-dual-price.labelGross"|trans }}: {% endif %}
     {% endif %}
+    {% if dualListPrice is not null %}<s class="rc-dual-price-list-price">{{ dualListPrice|currency(currencyIsoCode) }}</s> {% endif %}
+    {{- dualPrice|currency(currencyIsoCode) -}}
 {% endif %}
