@@ -16,7 +16,7 @@
 
     {% if product.extensions.rc_dual_price_active.enabled and dualTaxRate is not null and dualTaxRate != 0 %}
         <div class="rc-dual-price" style="{{ product.extensions.rc_dual_price_active.cssStyles }}">
-            {# Den Streichpreis gibt es nur ohne „ab“-Preis; er steht im Aufruf unten (BRIEF09). #}
+            {# Den Streichpreis gibt es nur ohne „ab“-Preis; er steht im Aufruf unten. #}
             {% set dualShowListPrice = dualIsListPrice and not (displayFrom is defined and displayFrom) and not (displayFromVariants is defined and displayFromVariants) %}
 
             {# "Ab"-Prefix bei Staffel-/Variantenpreisen #}

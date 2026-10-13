@@ -2,15 +2,15 @@
 
 [![CI](https://github.com/ReneSchustek/RcDualPrice/actions/workflows/ci.yml/badge.svg)](https://github.com/ReneSchustek/RcDualPrice/actions/workflows/ci.yml)
 
-Shopware 6 Plugin — zeigt neben dem Hauptpreis automatisch den Netto- bzw. Bruttopreis an.
+Ein Plugin für Shopware 6, das neben dem Hauptpreis automatisch den Netto- bzw. Bruttopreis anzeigt.
 
 ---
 
 ## Was das Plugin macht
 
-Shopware zeigt standardmäßig entweder Brutto- oder Nettopreise. Dieses Plugin ergänzt automatisch den jeweils fehlenden Gegenpreis: In Brutto-Shops wird der Nettopreis angezeigt, in Netto-Shops der Bruttopreis.
+Von Haus aus zeigt Shopware entweder Brutto- oder Nettopreise. Das Plugin ergänzt automatisch den jeweils fehlenden Gegenpreis: In Brutto-Shops erscheint der Nettopreis, in Netto-Shops der Bruttopreis.
 
-Die Berechnung erfolgt anhand des hinterlegten Steuersatzes. Die Aktivierung wird pro Kategorie über ein Custom Field gesteuert — alle Produkte in einer aktivierten Kategorie erhalten die Netto-/Brutto-Anzeige.
+Gerechnet wird mit dem hinterlegten Steuersatz. Ob die Anzeige erscheint, steuert ein Custom Field an der Kategorie; alle Produkte in einer aktivierten Kategorie erhalten die Netto-/Brutto-Anzeige.
 
 ---
 
@@ -44,9 +44,9 @@ Die Berechnung erfolgt anhand des hinterlegten Steuersatzes. Die Aktivierung wir
 
 ## Installation
 
-Das Plugin gehört als Ordner `custom/plugins/RcDualPrice` in die Shopware-Installation. Übertragen wird er von Hand — per FTP in dieses Verzeichnis kopieren; ein Composer-Paket gibt es nicht. Danach registriert Shopware ihn über die folgenden Befehle:
+Das Plugin gehört als Ordner `custom/plugins/RcDualPrice` in die Shopware-Installation. Übertragen wird er von Hand, per FTP in dieses Verzeichnis; ein Composer-Paket gibt es nicht. Danach registriert Shopware ihn über die folgenden Befehle:
 
-Als Archiv geht es auch ohne FTP: In der Administration unter **Erweiterungen → Meine Erweiterungen → Erweiterung hochladen** nimmt Shopware eine ZIP-Datei entgegen und legt sie selbst an die richtige Stelle; auf der Konsole tut `plugin:zip-import` dasselbe. Danach folgen dieselben Schritte wie unten. Wer das Archiv unter macOS packt, entfernt vorher den Ordner `__MACOSX` — sonst weist Shopware die Datei ab.
+Als Archiv geht es auch ohne FTP: In der Administration unter **Erweiterungen → Meine Erweiterungen → Erweiterung hochladen** nimmt Shopware eine ZIP-Datei entgegen und legt sie selbst an die richtige Stelle; auf der Konsole tut `plugin:zip-import` dasselbe. Danach folgen dieselben Schritte wie unten. Wer das Archiv unter macOS packt, entfernt vorher den Ordner `__MACOSX`, sonst weist Shopware die Datei ab.
 
 ```bash
 php bin/console plugin:refresh
@@ -54,7 +54,7 @@ php bin/console plugin:install --activate RcDualPrice
 php bin/console cache:clear
 ```
 
-**Aktualisierungen laufen denselben Weg.** Den neuen Ordner per FTP über den alten legen, danach `plugin:refresh` und `plugin:update RcDualPrice`. Eine Aktualisierung von selbst gibt es nicht — ohne Composer-Paket und ohne Shopware-Store bleibt sie Sache des Betreibers. Vor einem Sprung über eine Hauptversion gehört ein Datenbank-Abzug dazu.
+**Aktualisierungen laufen denselben Weg.** Den neuen Ordner per FTP über den alten legen, danach `plugin:refresh` und `plugin:update RcDualPrice`. Von selbst aktualisiert sich nichts. Ohne Composer-Paket und ohne Shopware-Store bleibt das Sache des Betreibers. Vor einem Sprung über eine Hauptversion gehört ein Datenbank-Abzug dazu.
 
 ---
 
@@ -74,13 +74,13 @@ Im Admin unter **Einstellungen → Plugins → RcDualPrice**:
 
 ### Aktivierung per Kategorie
 
-Im Admin unter **Kategorien → [Kategorie] → Individuelle Felder**:
+Im Admin an der Kategorie unter **Zusatzfelder → Zweitpreis (Netto/Brutto)**:
 
 | Feld | Beschreibung |
 |------|-------------|
-| Dual Price aktiv | Aktiviert die Netto-/Brutto-Anzeige für alle Produkte in dieser Kategorie |
+| Zweitpreis-Anzeige für diese Kategorie aktivieren | Aktiviert die Netto-/Brutto-Anzeige für alle Produkte in dieser Kategorie |
 
-**Hinweis:** Im Warenkorb und Checkout wird der Gegenpreis bei allen Produkten angezeigt (unabhängig von der Kategorie), da dort keine Kategorie-Zuordnung verfügbar ist.
+**Hinweis:** Auch Warenkorb, Checkout und Bestellung richten sich nach der Kategorie. Beim Aufbau des Warenkorbs wird für jede Position festgehalten, ob ihre Kategorie den Gegenpreis aktiviert hat, und dieser Wert reist bis in die Bestellung mit. Bestellungen aus der Zeit vor 1.4.0 tragen ihn nicht; dort zeigt die Bestellung den Gegenpreis wie früher, sobald das Plugin global aktiv ist.
 
 ---
 
@@ -105,7 +105,7 @@ composer quality   # cs-check + phpstan + test
 
 ## Lizenz
 
-MIT — siehe `composer.json`.
+MIT, siehe `composer.json`.
 
 ---
 

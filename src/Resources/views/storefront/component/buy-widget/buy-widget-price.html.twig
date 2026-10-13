@@ -19,7 +19,7 @@
     {% if product.extensions.rc_dual_price_active.enabled and product.calculatedPrice and dualTaxRate is not null and dualTaxRate != 0 %}
         <div class="rc-dual-price" style="{{ product.extensions.rc_dual_price_active.cssStyles }}">
             {# Zweitpreis zum Verkaufspreis; mit Listenpreis steht der alte Betrag durchgestrichen davor,
-               unter einer Beschriftung (BRIEF09). #}
+               unter derselben Beschriftung. #}
             {% sw_include '@RcDualPrice/storefront/component/rc-dual-price-label.html.twig' with {
                 unitPrice: price.unitPrice,
                 listUnitPrice: dualIsListPrice ? price.listPrice.price : null,
