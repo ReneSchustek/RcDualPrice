@@ -329,7 +329,7 @@ final class PageSubscriberTest extends TestCase
 
     /**
      * Was: Die Produktseite selbst.
-     * Warum: **Die Hauptoberfläche des Plugins — und sie war ungetestet.** Der Zweitpreis steht
+     * Warum: **Die Hauptoberfläche des Plugins.** Der Zweitpreis steht
      *        auf jeder Produktseite; fällt die Anreicherung dort aus, sieht der Kunde nur einen
      *        Preis, und niemandem fällt es auf, weil die Seite vollständig aussieht.
      * Erwartet: Das Produkt trägt die Erweiterung mit `enabled = true`.
@@ -382,8 +382,8 @@ final class PageSubscriberTest extends TestCase
 
     /**
      * Was: Cross-Selling bei abgeschaltetem Plugin.
-     * Warum: Der aktive Fall war geprüft, der abgeschaltete nicht — und genau dort entscheidet
-     *        sich, ob der Schalter überhaupt etwas bewirkt.
+     * Warum: Den aktiven Fall zu prüfen genügt nicht — am abgeschalteten entscheidet sich,
+     *        ob der Schalter überhaupt etwas bewirkt.
      * Erwartet: keine Erweiterung.
      */
     public function testOnCrossSellingsLoadedSkipsWhenPluginInactive(): void
