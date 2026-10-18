@@ -7,9 +7,9 @@ namespace Ruhrcoder\RcDualPrice\Service;
 /**
  * Rechnet einen Einzelpreis in den jeweils anderen Steuer-State um — den "Zweitpreis".
  *
- * Zuvor lag diese Arithmetik un-getestet und un-gerundet inline im Twig
- * (rc-dual-price-label.html.twig). Als Service ist sie testbar und liefert einen deterministisch
- * gerundeten Wert (vermeidet die sub-Cent-Drift der früheren Roh-Division/-Multiplikation).
+ * Inline im Twig (rc-dual-price-label.html.twig) bliebe diese Arithmetik ungetestet und
+ * ungerundet. Als Service ist sie testbar und liefert einen deterministisch gerundeten Wert, ohne
+ * die Sub-Cent-Drift einer rohen Division oder Multiplikation.
  *
  * Grenzen bewusst eng: nur die echten States 'gross'/'net' erzeugen einen Zweitpreis. 'tax-free'
  * (und jeder unbekannte State) sowie ein Steuersatz von 0/null geben `null` zurück — dann darf

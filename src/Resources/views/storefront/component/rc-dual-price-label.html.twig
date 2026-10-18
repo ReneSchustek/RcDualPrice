@@ -8,9 +8,9 @@
         currencyIsoCode – string|null – ISO-Code der Währung (optional, für currency-Filter)
         hideLabel       – bool        – Wenn true, wird nur der Betrag ohne "Netto:"/"Brutto:" ausgegeben
         listUnitPrice   – float|null  – Streichpreis (Listenpreis). Steht dann durchgestrichen zwischen
-                                        Beschriftung und Betrag: "Netto: <s>5,03 €</s> 4,19 €". Bis 1.4.3
-                                        riefen die Vorlagen das Partial zweimal auf, und "Netto" stand
-                                        zweimal da, einmal durchgestrichen.
+                                        Beschriftung und Betrag: "Netto: <s>5,03 €</s> 4,19 €". Deshalb nur
+                                        ein Aufruf je Preis; zwei Aufrufe zeigten "Netto" doppelt, einmal
+                                        davon durchgestrichen.
 #}
 {#
     Nur die beiden echten Steuer-States 'gross'/'net' erzeugen einen Zweitpreis. 'tax-free' (und

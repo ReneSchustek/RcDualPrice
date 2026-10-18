@@ -121,8 +121,8 @@ final class PageSubscriber implements EventSubscriberInterface
      * (Einzel-Produkt-Box), `getProducts()` (Cross-Selling/Cluster) und `getListing()`
      * (Listing-Element). Andere Strukturen werden übergangen.
      *
-     * Eigene Methode seit dem 2026-08-19: Zusammen mit der Traversierung lag die Verzweigungszahl
-     * von `onCmsPageLoaded()` bei 20, die Regel zieht die Grenze bei 15.
+     * Eigene Methode, weil die Verzweigungszahl von `onCmsPageLoaded()` zusammen mit der
+     * Traversierung bei 20 läge; die Regel zieht die Grenze bei 15.
      */
     private function enrichSlot(CmsSlotEntity $slot): void
     {

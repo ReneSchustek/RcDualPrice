@@ -41,8 +41,8 @@ final class RcDualPrice extends Plugin
     {
         // `isset()` statt `=== null`: `Bundle::$container` ist eine typisierte Eigenschaft ohne
         // Vorbelegung. Ist sie nie gesetzt worden, wirft schon der **Zugriff** einen
-        // `Error: Typed property … must not be accessed before initialization` — die Prüfung
-        // darunter kam nie zum Zuge und war toter Code. Wer den Fehler dann las, suchte in
+        // `Error: Typed property … must not be accessed before initialization`, und ein
+        // Vergleich mit `null` käme nie zum Zuge. Wer den Fehler dann liest, sucht in
         // Symfonys Bundle-Klasse statt in der Aufrufreihenfolge des Lebenszyklus.
         if (!isset($this->container)) {
             throw new \RuntimeException('Plugin container is not available.');
