@@ -3,7 +3,7 @@
   "description": "Zeigt zweiten Preis (Netto oder Brutto) bei aktivierter Kategorieoption.",
   "type": "shopware-platform-plugin",
   "version": "1.4.4",
-  "license": "MIT",
+  "license": "proprietary",
   "authors": [
     {
       "name": "Ruhrcoder (René Schustek)",

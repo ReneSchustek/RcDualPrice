@@ -105,7 +105,7 @@ composer quality   # cs-check + phpstan + test
 
 ## Lizenz
 
-MIT, siehe `composer.json`.
+Proprietär – siehe `composer.json`.
 
 ---
 
