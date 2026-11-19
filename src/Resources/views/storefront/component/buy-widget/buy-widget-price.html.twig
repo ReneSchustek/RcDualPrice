@@ -17,7 +17,13 @@
     {% set dualIsListPrice = price.listPrice and price.listPrice.percentage > 0 %}
 
     {% if product.extensions.rc_dual_price_active.enabled and product.calculatedPrice and dualTaxRate is not null and dualTaxRate != 0 %}
-        <div class="rc-dual-price" style="{{ product.extensions.rc_dual_price_active.cssStyles }}">
+        {# `data-rc-dual-price-live`: Der Betrag folgt einem in der Seite berechneten Preis (Meterpreis aus
+           RcDynamicPrice, `dual-price-live.plugin.js`). #}
+        <div class="rc-dual-price" style="{{ product.extensions.rc_dual_price_active.cssStyles }}"
+             data-rc-dual-price-live
+             data-tax-rate="{{ dualTaxRate }}"
+             data-tax-state="{{ context.taxState }}"
+             data-currency="{{ currencyIsoCode|default(context.currency.isoCode) }}">
             {# Zweitpreis zum Verkaufspreis; mit Listenpreis steht der alte Betrag durchgestrichen davor,
                unter derselben Beschriftung. #}
             {% sw_include '@RcDualPrice/storefront/component/rc-dual-price-label.html.twig' with {

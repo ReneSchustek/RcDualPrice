@@ -29,5 +29,5 @@
         {% if taxState == 'gross' %}{{ "rc-dual-price.labelNet"|trans }}: {% elseif taxState == 'net' %}{{ "rc-dual-price.labelGross"|trans }}: {% endif %}
     {% endif %}
     {% if dualListPrice is not null %}<s class="rc-dual-price-list-price">{{ dualListPrice|currency(currencyIsoCode) }}</s> {% endif %}
-    {{- dualPrice|currency(currencyIsoCode) -}}
+    <span data-rc-dual-price-amount>{{- dualPrice|currency(currencyIsoCode) -}}</span>
 {% endif %}

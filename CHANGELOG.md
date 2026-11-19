@@ -2,6 +2,19 @@
 
 Alle nennenswerten Änderungen werden in dieser Datei dokumentiert.
 
+## [1.5.0] - 2026-11-18: Zweitpreis folgt dem berechneten Meterpreis
+
+> **Deployment:** `php bin/console plugin:update RcDualPrice`, `php bin/console theme:compile`,
+> `php bin/console cache:clear`. Das Storefront-Skript liegt gebaut bei.
+
+### Neu
+
+- **Der Zweitpreis auf der Produktseite folgt einem in der Seite berechneten Preis.** Bei Meterpreis-Artikeln rechnet
+  RcDynamicPrice den Preis aus der Länge und meldet ihn mit `rcDynamicPriceChanged`; ein neues Storefront-Skript
+  rechnet daraus den Zweitpreis wie `DualPriceCalculator` (auf zwei Stellen gerundet) und stellt ohne Länge den Wert vom
+  Server wieder her. Bisher blieb „Netto“ beim Meterpreis stehen (Theme BRIEF167). Der Betrag steht dafür in
+  `[data-rc-dual-price-amount]`.
+
 ## [1.4.4] - 2026-10-13: „Netto“ beim Streichpreis nur einmal
 
 > **Deployment:** `php bin/console plugin:update RcDualPrice`, `php bin/console cache:clear`.
